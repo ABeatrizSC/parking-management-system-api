@@ -19,8 +19,11 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private LocalTime startHour;
+    @Column
     private LocalTime finishHour;
+    @Column
     private Double totalValue;
     @OneToOne
     @JoinColumn(name = "id_vehicle", nullable = false)
