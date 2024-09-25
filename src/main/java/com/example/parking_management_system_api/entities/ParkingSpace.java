@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Table(name = "parking_spaces")
 public class ParkingSpace implements Serializable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(name = "number", nullable = false)
     private int number;
@@ -28,6 +28,5 @@ public class ParkingSpace implements Serializable {
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
-
 
 }
