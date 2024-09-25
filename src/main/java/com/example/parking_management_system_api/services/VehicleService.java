@@ -1,20 +1,18 @@
 package com.example.parking_management_system_api.services;
 
-import com.example.parking_management_system_api.entities.Vehicles;
-import com.example.parking_management_system_api.repositories.VehiclesRepository;
+import com.example.parking_management_system_api.entities.Vehicle;
+import com.example.parking_management_system_api.repositories.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Service
-public class VehiclesService {
+public class VehicleService {
 
-    private final VehiclesRepository vehiclesRepository;
+    private final VehicleRepository vehicleRepository;
 
-    public Vehicles create (){
-        return new Vehicles();
+    public Vehicle create (){
+        return new Vehicle();
     }
 
     public Object showVehicles(){

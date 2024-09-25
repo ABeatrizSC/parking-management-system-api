@@ -1,23 +1,20 @@
 package com.example.parking_management_system_api.web.controller;
-import com.example.parking_management_system_api.entities.Vehicles;
-import com.example.parking_management_system_api.services.VehiclesService;
-import jakarta.validation.Valid;
+import com.example.parking_management_system_api.entities.Vehicle;
+import com.example.parking_management_system_api.services.VehicleService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/vehicles")
-public class VehiclesController {
+public class VehicleController {
 
-    private final VehiclesService vehiclesService;
+    private final VehicleService vehicleService;
 
 
     @PostMapping
-    public Object create (Vehicles vehicles){
+    public Object create (Vehicle vehicles){
 
         return new Object();
     }
@@ -29,7 +26,7 @@ public class VehiclesController {
     }
 
     @PutMapping
-    public Object update (@RequestBody Vehicles vehicles){
+    public Object update (@RequestBody Vehicle vehicles){
         return new Object();
     }
 
