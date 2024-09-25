@@ -1,7 +1,7 @@
 package com.example.parking_management_system_api.services;
 
-import com.example.parking_management_system_api.entities.ParkingSpaces;
-import com.example.parking_management_system_api.repositories.ParkingSpacesRepository;
+import com.example.parking_management_system_api.entities.ParkingSpace;
+import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,28 +9,28 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ParkingSpacesService {
+public class ParkingSpaceService {
 
-    private final ParkingSpacesRepository parkingSpacesRepository;
+    private final ParkingSpaceRepository parkingSpacesRepository;
 
     @Autowired
-    public ParkingSpacesService(ParkingSpacesRepository parkingSpacesRepository) {
+    public ParkingSpaceService(ParkingSpaceRepository parkingSpacesRepository) {
         this.parkingSpacesRepository = parkingSpacesRepository;
     }
 
-    public ParkingSpaces createParkingSpace(ParkingSpaces parkingSpaces) {
+    public ParkingSpace createParkingSpace(ParkingSpace parkingSpaces) {
         return parkingSpacesRepository.save(parkingSpaces);
     }
 
-    public Optional<ParkingSpaces> findParkingSpaceById(int id) {
+    public Optional<ParkingSpace> findParkingSpaceById(int id) {
         return parkingSpacesRepository.findById(id);
     }
 
-    public List<ParkingSpaces> getAllParkingSpaces() {
+    public List<ParkingSpace> getAllParkingSpaces() {
         return parkingSpacesRepository.findAll();
     }
 
-    public ParkingSpaces updateParkingSpace(ParkingSpaces parkingSpaces) {
+    public ParkingSpace updateParkingSpace(ParkingSpace parkingSpaces) {
         return parkingSpacesRepository.save(parkingSpaces);
     }
 
@@ -40,11 +40,11 @@ public class ParkingSpacesService {
 
     public boolean isParkingSpaceOccupied(int id) {
         return parkingSpacesRepository.findById(id)
-                .map(ParkingSpaces::isOccupied)
+                .map(ParkingSpace::isOccupied)
                 .orElse(false);
     }
 
-    public List<ParkingSpaces> getAvailableParkingSpaces() {
+    public List<ParkingSpace> getAvailableParkingSpaces() {
         return parkingSpacesRepository.findAll().stream()
                 .filter(parkingSpace -> !parkingSpace.isOccupied())
                 .toList();

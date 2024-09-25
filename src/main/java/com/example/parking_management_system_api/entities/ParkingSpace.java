@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Entity
 @EqualsAndHashCode
 @Table(name = "parking_spaces")
-public class ParkingSpaces implements Serializable {
+public class ParkingSpace implements Serializable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
@@ -27,7 +27,7 @@ public class ParkingSpaces implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
-    private Vehicles vehicle;
+    private Vehicle vehicle;
 
 
 }
