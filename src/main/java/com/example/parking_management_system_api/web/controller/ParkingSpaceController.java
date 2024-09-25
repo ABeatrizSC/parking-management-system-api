@@ -24,7 +24,7 @@ public class ParkingSpaceController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<ParkingSpace> getParkingSpaceById(@PathVariable int id) {
+    public ResponseEntity<ParkingSpace> getParkingSpaceById(@PathVariable Long id) {
         Optional<ParkingSpace> parkingSpace = parkingSpacesService.findParkingSpaceById(id);
         return parkingSpace.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -37,7 +37,7 @@ public class ParkingSpaceController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ParkingSpace> updateParkingSpace(@PathVariable int id, @RequestBody ParkingSpace parkingSpaces) {
+    public ResponseEntity<ParkingSpace> updateParkingSpace(@PathVariable Long id, @RequestBody ParkingSpace parkingSpaces) {
         parkingSpaces.setId(id); // Assumindo que você quer atualizar pelo ID
         ParkingSpace updatedSpace = parkingSpacesService.updateParkingSpace(parkingSpaces);
         return ResponseEntity.ok(updatedSpace);
@@ -45,7 +45,7 @@ public class ParkingSpaceController {
 
     // Deletar uma vaga
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteParkingSpace(@PathVariable int id) {
+    public ResponseEntity<Void> deleteParkingSpace(@PathVariable Long id) {
         parkingSpacesService.deleteParkingSpace(id);
         return ResponseEntity.noContent().build();
     }

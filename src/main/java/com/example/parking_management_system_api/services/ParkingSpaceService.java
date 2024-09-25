@@ -2,6 +2,7 @@ package com.example.parking_management_system_api.services;
 
 import com.example.parking_management_system_api.entities.ParkingSpace;
 import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,18 +12,14 @@ import java.util.Optional;
 @Service
 public class ParkingSpaceService {
 
-    private final ParkingSpaceRepository parkingSpacesRepository;
-
     @Autowired
-    public ParkingSpaceService(ParkingSpaceRepository parkingSpacesRepository) {
-        this.parkingSpacesRepository = parkingSpacesRepository;
-    }
+    private ParkingSpaceRepository parkingSpacesRepository;
 
     public ParkingSpace createParkingSpace(ParkingSpace parkingSpaces) {
         return parkingSpacesRepository.save(parkingSpaces);
     }
 
-    public Optional<ParkingSpace> findParkingSpaceById(int id) {
+    public Optional<ParkingSpace> findParkingSpaceById(Long id) {
         return parkingSpacesRepository.findById(id);
     }
 
@@ -34,13 +31,13 @@ public class ParkingSpaceService {
         return parkingSpacesRepository.save(parkingSpaces);
     }
 
-    public void deleteParkingSpace(int id) {
+    public void deleteParkingSpace(Long id) {
         parkingSpacesRepository.deleteById(id);
     }
 
-    public boolean isParkingSpaceOccupied(int id) {
+    public boolean isParkingSpaceOccupied(Long id) {
         return parkingSpacesRepository.findById(id)
-                .map(ParkingSpace::isOccupied)
+                .map(parkingSpace -> parkingSpace.isOccupied())
                 .orElse(false);
     }
 

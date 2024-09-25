@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ApiExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ErrorMessage> entityNotFoundException(RuntimeException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorMessage> entityNotFoundException(EntityNotFoundException ex, HttpServletRequest request) {
         log.error("Api Error - ", ex);
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -26,12 +26,12 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(VehicleInvalidException.class)
-    public ResponseEntity<ErrorMessage> vehicleInvalid(RuntimeException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorMessage> vehicleInvalid(VehicleInvalidException ex, HttpServletRequest request) {
         log.error("Api Error - ", ex);
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, ex.getMessage()));
+                .body(new ErrorMessage(request, HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage()));
     }
 
 }
