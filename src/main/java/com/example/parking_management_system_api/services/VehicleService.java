@@ -6,26 +6,25 @@ import com.example.parking_management_system_api.repositories.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Service
 public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
-
-    public Vehicle findByLicensePlate(String licensePlate) {
-        return vehicleRepository.findByLicensePlate(licensePlate).orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle plate=%s not found", licensePlate)));
+  
+    public Vehicle create(Vehicle vehicle){
+        return vehicleRepository.save(vehicle);
     }
 
-    public Vehicle create (){
-        return new Vehicle();
+    public Optional<Vehicle> showByPlate(String plate){
+        return vehicleRepository.findByLicensePlate(plate);
     }
 
-    public Object showVehicles(){
-        return new Object();
-    }
-
-    public Object showAll(){
-        return new Object();
+    public List<Vehicle> showAll(){
+        return vehicleRepository.findAll();
     }
 
     public Object update(){
@@ -35,6 +34,5 @@ public class VehicleService {
     public Object delete(){
         return new Object();
     }
-
 
 }
