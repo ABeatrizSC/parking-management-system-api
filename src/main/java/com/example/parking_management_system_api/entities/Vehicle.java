@@ -25,7 +25,7 @@ public class Vehicle implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = 100)
     private VehicleCategoryEnum category;
-    @Column(name = "slotSize", nullable = false)
+    @Column(name = "slotSize")
     private Integer slotSize;
     @Column(name = "accessType", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)

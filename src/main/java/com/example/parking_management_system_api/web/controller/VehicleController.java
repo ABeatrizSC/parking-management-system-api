@@ -1,6 +1,9 @@
 package com.example.parking_management_system_api.web.controller;
 import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.services.VehicleService;
+import com.example.parking_management_system_api.web.dto.VehicleCreateDto;
+import com.example.parking_management_system_api.web.dto.VehicleResponseDto;
+import com.example.parking_management_system_api.web.dto.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -16,10 +19,10 @@ public class VehicleController {
     private final VehicleService vehicleService;
 
     @PostMapping
-    public ResponseEntity<Vehicle> create(@RequestBody Vehicle vehicles){
-        Vehicle vehicle = vehicleService.create(vehicles);
-        return ResponseEntity.created(URI.create("/api/vehicles"
-        + vehicle.getId())).body(vehicle);
+    public ResponseEntity<VehicleResponseDto> create(@RequestBody VehicleCreateDto dto){
+        VehicleResponseDto response = vehicleService.create(dto);
+       return ResponseEntity.created(URI.create("/api/vehicles"
+        + dto.getLicensePlate())).body(response);
     }
 
     @GetMapping
