@@ -2,7 +2,11 @@ package com.example.parking_management_system_api.services;
 
 import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
+import com.example.parking_management_system_api.models.VehicleTypeEnum;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
+import com.example.parking_management_system_api.web.dto.VehicleCreateDto;
+import com.example.parking_management_system_api.web.dto.VehicleResponseDto;
+import com.example.parking_management_system_api.web.dto.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +18,19 @@ public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
   
-    public Vehicle create(Vehicle vehicle){
-        return vehicleRepository.save(vehicle);
+    public VehicleResponseDto create(VehicleCreateDto dto){
+        Vehicle vehicle = vehicleRepository.save(VehicleMapper.toVehicle(dto));
+
+        if (vehicle.getAccessType()== VehicleTypeEnum.DELIVERY_TRUCK){
+            vehicle.setSlotSize(4);
+        }
+        if (vehicle.getAccessType()== VehicleTypeEnum.PASSENGER_CAR){
+            vehicle.setSlotSize(2);
+        }
+        if (vehicle.getAccessType()== VehicleTypeEnum.MOTORCYCLE){
+            vehicle.setSlotSize(1);
+        }
+        return VehicleMapper.toDto(vehicle);
     }
 
     public Vehicle findById(Long id) {
