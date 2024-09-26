@@ -3,6 +3,7 @@ package com.example.parking_management_system_api.services;
 import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +20,8 @@ public class VehicleService {
         return vehicleRepository.save(vehicle);
     }
 
-    public Optional<Vehicle> showByPlate(String plate){
-        return vehicleRepository.findByLicensePlate(plate);
+    public Vehicle findByLicensePlate(String licensePlate) {
+        return vehicleRepository.findByLicensePlate(licensePlate).orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle plate=%s not found", licensePlate)));
     }
 
     public List<Vehicle> showAll(){
@@ -34,5 +35,4 @@ public class VehicleService {
     public Object delete(){
         return new Object();
     }
-
 }
