@@ -5,7 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.io.Serializable;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -13,18 +16,26 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "ticket")
-public class Ticket {
+@Table(name = "tickets")
+public class Ticket implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
+    @Column(name = "start_hour", nullable = false)
     private LocalTime startHour;
-    @Column
+    @Column(name = "finish_hour")
     private LocalTime finishHour;
-    @Column
+    @Column(name = "total_value")
     private Double totalValue;
+    @Column(name = "parked")
+    private Boolean parked;
+    @Column(name = "entrance_gate")
+    private Integer entranceGate;
+    @Column(name = "exit_gate")
+    private Integer exitGate;
+    @Column(name = "parking_spaces")
+    private String parkingSpaces;
     @OneToOne
     @JoinColumn(name = "id_vehicle", nullable = false)
     private Vehicle vehicle;

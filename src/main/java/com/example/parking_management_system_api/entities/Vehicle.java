@@ -20,21 +20,30 @@ public class Vehicle implements Serializable {
 
     @Column(name = "licensePlate", nullable = false, length = 100)
     private String licensePlate;
+    @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = 100)
-    private String category;
+    private Category category;
     @Column(name = "slotSize", nullable = false)
     private Integer slotSize;
     @Column(name = "accessType", nullable = false, length = 50)
-    private String accessType;
-    @Column(name = "parkingSpaces", length = 100)
-    private String parkingSpaces;
-    @Column(name = "entranceGate")
-    private Integer entranceGate;
-    @Column(name = "exitGate")
-    private Integer exitGate;
+    @Enumerated(EnumType.STRING)
+    private Type accessType;
+    @Column
+    private Boolean registered;
 
-    @Column(name = "tickets_id")
-    private Integer tickets_id;
+    public enum Category {
+        MENSALIST,
+        SEPARATED,
+        DELIVERY_TRUCK,
+        PUBLIC_SERVICE
+    }
+
+    public enum Type {
+        PASSENGER_CAR,
+        MOTORCYCLE,
+        DELIVERY_TRUCK,
+        PUBLIC_SERVICE
+    }
 
 
 

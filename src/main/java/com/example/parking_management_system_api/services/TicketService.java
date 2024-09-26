@@ -1,30 +1,125 @@
 package com.example.parking_management_system_api.services;
 
+import com.example.parking_management_system_api.entities.ParkingSpace;
 import com.example.parking_management_system_api.entities.Ticket;
 import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
+import com.example.parking_management_system_api.exception.IllegalStateException;
+import com.example.parking_management_system_api.exception.InvalidGateException;
+import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
 import com.example.parking_management_system_api.repositories.TicketRepository;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
+import com.example.parking_management_system_api.util.ParkingUtil;
+import com.example.parking_management_system_api.web.dto.TicketCheckInCreateDto;
+import com.example.parking_management_system_api.web.dto.TicketCheckOutCreateDto;
+import com.example.parking_management_system_api.web.dto.TicketResponseDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TicketService {
     private final TicketRepository ticketRepository;
     private final VehicleRepository vehicleRepository;
+    private final ParkingSpaceRepository parkingSpaceRepository;
+    private final ParkingSpaceService parkingSpaceService;
+    private final VehicleService vehicleService;
 
     @Transactional
-    public Ticket save(Ticket ticket) {
-        Vehicle vehicle = vehicleRepository.findById(ticket.getVehicle().getId())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle id=%s not found", ticket.getVehicle().getId())));
+    public Ticket saveCheckIn(TicketCheckInCreateDto dto) {
+        Vehicle vehicle = vehicleService.findByLicensePlate(dto.getLicensePlate());
+        if (allocatedSpaces(vehicle) == null) {
+            throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
+        }
+        if (!checkEntryGate(vehicle, dto)) {
+            throw new InvalidGateException("Wrong gate");
+        }
+        Ticket ticket = new Ticket();
+        ticket.setVehicle(vehicle);
+        ticket.setStartHour(dto.getStartHour());
+        ticket.setParked(true);
+        ticket.setEntranceGate(dto.getEntranceGate());
+        List<ParkingSpace> parkingSpaces = allocatedSpaces(vehicle);
+        String spaces = parkingSpaces.stream()
+                .map(parkingSpace -> parkingSpace.toString())
+                .collect(Collectors.joining(", "));
+        ticket.setParkingSpaces(spaces);
         return ticketRepository.save(ticket);
     }
 
     @Transactional
-    public Ticket searchById(Long id) {
-        return ticketRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Ticket id=%S not found", id)));
+    public List<Ticket> searchAll() {
+        return ticketRepository.findAll();
+    }
+
+    @Transactional
+    public Ticket saveCheckOut(Long id, TicketCheckOutCreateDto dto) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Ticket id=%s not found", id)));
+        Vehicle vehicle = vehicleRepository.findById(ticket.getVehicle().getId())
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle id=%s not found", ticket.getVehicle().getId())));
+        if (!checkExitGate(vehicle, dto)) {
+            throw new InvalidGateException("Wrong gate");
+        }
+        ticket.setParked(false);
+        ticket.setFinishHour(dto.getFinishHour());
+        ticket.setExitGate(dto.getExitGate());
+        ParkingUtil parkingUtil = new ParkingUtil();
+        ticket.setTotalValue(parkingUtil.calculateTotalValue(ticket.getStartHour(), dto.getFinishHour(), vehicle));
+        return ticketRepository.save(ticket);
+    }
+
+    private boolean checkEntryGate(Vehicle vehicle, TicketCheckInCreateDto dto) {
+        int entranceGate = dto.getEntranceGate();
+        if (entranceGate < 1 || entranceGate > 5) {
+            return false;
+        }
+        if (vehicle.getAccessType() == Vehicle.Type.PASSENGER_CAR ||
+                vehicle.getAccessType() == Vehicle.Type.MOTORCYCLE ||
+                vehicle.getAccessType() == Vehicle.Type.PUBLIC_SERVICE) {
+            return vehicle.getAccessType() != Vehicle.Type.MOTORCYCLE || entranceGate == 5;
+        } else if (vehicle.getAccessType() == Vehicle.Type.DELIVERY_TRUCK) {
+            return entranceGate == 1;
+        }
+        return false;
+    }
+    private boolean checkExitGate(Vehicle vehicle, TicketCheckOutCreateDto dto) {
+        int exitGate = dto.getExitGate();
+        if (exitGate < 6 || exitGate > 10) {
+            return false;
+        }
+        if (vehicle.getAccessType() == Vehicle.Type.PASSENGER_CAR ||
+                vehicle.getAccessType() == Vehicle.Type.PUBLIC_SERVICE ||
+                vehicle.getAccessType() == Vehicle.Type.DELIVERY_TRUCK) {
+            return true;
+        } else if (vehicle.getAccessType() == Vehicle.Type.MOTORCYCLE) {
+            return exitGate == 10;
+        }
+        return false;
+    }
+    private List<ParkingSpace> allocatedSpaces(Vehicle vehicle) {
+        int requiredSpaces = vehicle.getSlotSize();
+        List<ParkingSpace> availableSpaces = parkingSpaceService.getAvailableParkingSpaces();
+        List<ParkingSpace> consecutiveSpaces = new ArrayList<>();
+        ParkingSpace previousSpace = null;
+        for (ParkingSpace currentSpace : availableSpaces) {
+            if (previousSpace == null || currentSpace.getNumber() == previousSpace.getNumber() + 1) {
+                consecutiveSpaces.add(currentSpace);
+                if (consecutiveSpaces.size() == requiredSpaces) {
+                    return consecutiveSpaces;
+                }
+            } else {
+                consecutiveSpaces.clear();
+                consecutiveSpaces.add(currentSpace);
+            }
+            previousSpace = currentSpace;
+        }
+        return null;
     }
 }

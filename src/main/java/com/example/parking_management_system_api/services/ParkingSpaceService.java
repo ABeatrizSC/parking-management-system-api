@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ParkingSpaceService {
 
-    @Autowired
-    private ParkingSpaceRepository parkingSpacesRepository;
+    private final ParkingSpaceRepository parkingSpacesRepository;
 
     public ParkingSpace createParkingSpace(ParkingSpace parkingSpaces) {
         return parkingSpacesRepository.save(parkingSpaces);
