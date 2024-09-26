@@ -3,12 +3,10 @@ package com.example.parking_management_system_api.services;
 import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -20,19 +18,31 @@ public class VehicleService {
         return vehicleRepository.save(vehicle);
     }
 
+    public Vehicle findById(Long id) {
+        return vehicleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle id=%s not found", id)));
+    }
+
     public Vehicle findByLicensePlate(String licensePlate) {
         return vehicleRepository.findByLicensePlate(licensePlate).orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle plate=%s not found", licensePlate)));
     }
 
-    public List<Vehicle> showAll(){
+    public List<Vehicle> findAll(){
         return vehicleRepository.findAll();
     }
 
-    public Object update(){
-        return new Object();
+    public Vehicle update(Long id, Vehicle vehicleUpdated){
+        Vehicle vehicle = findById(id);
+        updateData(vehicle, vehicleUpdated);
+        return vehicleRepository.save(vehicle);
     }
 
-    public Object delete(){
-        return new Object();
+    public void updateData(Vehicle vehicle, Vehicle vehicleUpdated) {
+        vehicle.setLicensePlate(vehicleUpdated.getLicensePlate());
+        vehicle.setAccessType(vehicleUpdated.getAccessType());
+        vehicle.setCategory(vehicleUpdated.getCategory());
+    }
+
+    public void delete(Long id){
+        vehicleRepository.deleteById(id);
     }
 }
