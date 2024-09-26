@@ -1,7 +1,8 @@
 package com.example.parking_management_system_api.web.exception;
 
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
-import com.example.parking_management_system_api.exception.VehicleInvalidException;
+import com.example.parking_management_system_api.exception.IllegalStateException;
+import com.example.parking_management_system_api.exception.InvalidGateException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +26,22 @@ public class ApiExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
-    @ExceptionHandler(VehicleInvalidException.class)
-    public ResponseEntity<ErrorMessage> vehicleInvalid(VehicleInvalidException ex, HttpServletRequest request) {
+    @ExceptionHandler(InvalidGateException.class)
+    public ResponseEntity<ErrorMessage> invalidGateException(InvalidGateException ex, HttpServletRequest request) {
         log.error("Api Error - ", ex);
         return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ErrorMessage(request, HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage()));
+                .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, ex.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorMessage> illegalStateException(IllegalStateException ex, HttpServletRequest request) {
+        log.error("Api Error - ", ex);
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(request, HttpStatus.CONFLICT, ex.getMessage()));
     }
 
 }

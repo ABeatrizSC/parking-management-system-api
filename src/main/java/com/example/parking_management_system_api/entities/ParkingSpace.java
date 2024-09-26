@@ -29,4 +29,8 @@ public class ParkingSpace implements Serializable {
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
 
+    @Override
+    public String toString() {
+        return String.valueOf(number);
+    }
 }
