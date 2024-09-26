@@ -30,7 +30,7 @@ public class VehicleController {
     public ResponseEntity<?> read (@RequestParam(required = false) String licensePlate){
 
         if (licensePlate != null){
-            Optional<Vehicle> vehicle = vehicleService.showByPlate(licensePlate);
+            Optional<Vehicle> vehicle = Optional.ofNullable(vehicleService.findByLicensePlate(licensePlate));
             return vehicle.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
         }
         else {
