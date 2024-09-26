@@ -3,7 +3,13 @@ import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.services.VehicleService;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,15 +20,23 @@ public class VehicleController {
 
 
     @PostMapping
-    public Object create (Vehicle vehicles){
-
-        return new Object();
+    public ResponseEntity<Vehicle> create (@RequestBody Vehicle vehicles){
+        Vehicle vehicle = vehicleService.create(vehicles);
+        return ResponseEntity.created(URI.create("/api/vehicles"
+        + vehicle.getId())).body(vehicle);
     }
 
     @GetMapping
-    public Object read (@RequestParam(required = false) String plate){
+    public ResponseEntity<?> read (@RequestParam(required = false) String licensePlate){
 
-        return new Object();
+        if (licensePlate != null){
+            Optional<Vehicle> vehicle = vehicleService.showByPlate(licensePlate);
+            return vehicle.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        }
+        else {
+            List<Vehicle> vehicles = vehicleService.showAll();
+            return ResponseEntity.ok(vehicles);
+        }
     }
 
     @PutMapping

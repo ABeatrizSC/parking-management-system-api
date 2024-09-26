@@ -11,6 +11,5 @@ public interface ParkingSpaceRepository extends JpaRepository<ParkingSpace, Long
 
 
     List<ParkingSpace> findAll();
-    ParkingSpace createParkingSpaces(ParkingSpace parkingSpaces);
 
 }
