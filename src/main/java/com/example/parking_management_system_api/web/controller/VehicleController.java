@@ -1,52 +1,57 @@
 package com.example.parking_management_system_api.web.controller;
 import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.services.VehicleService;
+import com.example.parking_management_system_api.web.dto.VehicleCreateDto;
+import com.example.parking_management_system_api.web.dto.VehicleResponseDto;
+import com.example.parking_management_system_api.web.dto.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/vehicles")
 public class VehicleController {
-
     private final VehicleService vehicleService;
 
-
     @PostMapping
-    public ResponseEntity<Vehicle> create (@RequestBody Vehicle vehicles){
-        Vehicle vehicle = vehicleService.create(vehicles);
-        return ResponseEntity.created(URI.create("/api/vehicles"
-        + vehicle.getId())).body(vehicle);
+    public ResponseEntity<VehicleResponseDto> create(@RequestBody VehicleCreateDto dto){
+        VehicleResponseDto response = vehicleService.create(dto);
+       return ResponseEntity.created(URI.create("/api/vehicles"
+        + dto.getLicensePlate())).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<?> read (@RequestParam(required = false) String licensePlate){
-
-        if (licensePlate != null){
-            Optional<Vehicle> vehicle = Optional.ofNullable(vehicleService.findByLicensePlate(licensePlate));
-            return vehicle.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-        }
-        else {
-            List<Vehicle> vehicles = vehicleService.showAll();
-            return ResponseEntity.ok(vehicles);
-        }
+    public ResponseEntity<List<Vehicle>> getAll(){
+        List<Vehicle> vehicles = vehicleService.findAll();
+        return ResponseEntity.ok(vehicles);
     }
 
-    @PutMapping
-    public Object update (@RequestBody Vehicle vehicles){
-        return new Object();
+    @GetMapping("/{id}")
+    public ResponseEntity<Vehicle> getById(@PathVariable Long id) {
+        Vehicle vehicle = vehicleService.findById(id);
+        return ResponseEntity.ok(vehicle);
     }
 
-    @DeleteMapping
-    public Void delete (){
-        return null;
+    @GetMapping("?licensePlate={licensePlate}")
+    public ResponseEntity<Vehicle> getByLicensePlate(@RequestParam String licensePlate) {
+        Vehicle vehicle = vehicleService.findByLicensePlate(licensePlate);
+        return ResponseEntity.ok(vehicle);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody Vehicle vehicle){
+        vehicleService.update(id, vehicle);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete (@PathVariable Long id){
+        vehicleService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

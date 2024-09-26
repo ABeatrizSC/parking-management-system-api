@@ -1,5 +1,6 @@
 package com.example.parking_management_system_api.entities;
 
+import com.example.parking_management_system_api.models.SlotTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,7 +24,7 @@ public class ParkingSpace implements Serializable {
     private boolean isOccupied;
 
     @Column(name = "slotType", nullable = false, length = 200)
-    private String slotType;
+    private SlotTypeEnum slotType;
 
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
