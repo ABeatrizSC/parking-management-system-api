@@ -1,6 +1,8 @@
 package com.example.parking_management_system_api.entities;
 
 
+import com.example.parking_management_system_api.models.VehicleCategoryEnum;
+import com.example.parking_management_system_api.models.VehicleTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,30 +24,13 @@ public class Vehicle implements Serializable {
     private String licensePlate;
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = 100)
-    private Category category;
+    private VehicleCategoryEnum category;
     @Column(name = "slotSize", nullable = false)
     private Integer slotSize;
     @Column(name = "accessType", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
-    private Type accessType;
+    private VehicleTypeEnum accessType;
     @Column
     private Boolean registered;
-
-    public enum Category {
-        MENSALIST,
-        SEPARATED,
-        DELIVERY_TRUCK,
-        PUBLIC_SERVICE
-    }
-
-    public enum Type {
-        PASSENGER_CAR,
-        MOTORCYCLE,
-        DELIVERY_TRUCK,
-        PUBLIC_SERVICE
-    }
-
-
-
 
 }
