@@ -6,6 +6,7 @@ import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.exception.IllegalStateException;
 import com.example.parking_management_system_api.exception.InvalidGateException;
+import com.example.parking_management_system_api.models.VehicleTypeEnum;
 import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
 import com.example.parking_management_system_api.repositories.TicketRepository;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
@@ -19,8 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -80,11 +81,11 @@ public class TicketService {
         if (entranceGate < 1 || entranceGate > 5) {
             return false;
         }
-        if (vehicle.getAccessType() == Vehicle.Type.PASSENGER_CAR ||
-                vehicle.getAccessType() == Vehicle.Type.MOTORCYCLE ||
-                vehicle.getAccessType() == Vehicle.Type.PUBLIC_SERVICE) {
-            return vehicle.getAccessType() != Vehicle.Type.MOTORCYCLE || entranceGate == 5;
-        } else if (vehicle.getAccessType() == Vehicle.Type.DELIVERY_TRUCK) {
+        if (vehicle.getAccessType() == VehicleTypeEnum.PASSENGER_CAR ||
+                vehicle.getAccessType() ==  VehicleTypeEnum.MOTORCYCLE ||
+                vehicle.getAccessType() ==  VehicleTypeEnum.PUBLIC_SERVICE) {
+            return vehicle.getAccessType() !=  VehicleTypeEnum.MOTORCYCLE || entranceGate == 5;
+        } else if (vehicle.getAccessType() ==  VehicleTypeEnum.DELIVERY_TRUCK) {
             return entranceGate == 1;
         }
         return false;
@@ -94,11 +95,11 @@ public class TicketService {
         if (exitGate < 6 || exitGate > 10) {
             return false;
         }
-        if (vehicle.getAccessType() == Vehicle.Type.PASSENGER_CAR ||
-                vehicle.getAccessType() == Vehicle.Type.PUBLIC_SERVICE ||
-                vehicle.getAccessType() == Vehicle.Type.DELIVERY_TRUCK) {
+        if (vehicle.getAccessType() ==  VehicleTypeEnum.PASSENGER_CAR ||
+                vehicle.getAccessType() ==  VehicleTypeEnum.PUBLIC_SERVICE ||
+                vehicle.getAccessType() ==  VehicleTypeEnum.DELIVERY_TRUCK) {
             return true;
-        } else if (vehicle.getAccessType() == Vehicle.Type.MOTORCYCLE) {
+        } else if (vehicle.getAccessType() ==  VehicleTypeEnum.MOTORCYCLE) {
             return exitGate == 10;
         }
         return false;
