@@ -11,11 +11,13 @@ import java.time.LocalTime;
 @Getter
 @Setter
 public class TicketCheckInCreateDto {
+
     @NotNull
     private LocalTime startHour;
+
     @NotBlank
     private String licensePlate;
+
     private String type;
-    @NotNull
-    private Integer entranceGate;
+
 }
