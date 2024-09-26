@@ -1,6 +1,7 @@
 package com.example.parking_management_system_api.services;
 
 import com.example.parking_management_system_api.entities.Vehicle;
+import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,8 +14,8 @@ import java.util.Optional;
 public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
-
-    public Vehicle create (Vehicle vehicle){
+  
+    public Vehicle create(Vehicle vehicle){
         return vehicleRepository.save(vehicle);
     }
 
@@ -33,6 +34,5 @@ public class VehicleService {
     public Object delete(){
         return new Object();
     }
-
 
 }

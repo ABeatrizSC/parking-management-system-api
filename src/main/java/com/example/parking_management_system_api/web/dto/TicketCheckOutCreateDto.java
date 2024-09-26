@@ -1,6 +1,7 @@
 package com.example.parking_management_system_api.web.dto;
 
-import com.example.parking_management_system_api.entities.Vehicle;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,14 +13,9 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class TicketResponseDto {
-    private Long id;
-    private Vehicle vehicle;
-    private Boolean parked;
-    private LocalTime startHour;
+public class TicketCheckOutCreateDto {
+    @NotNull
     private LocalTime finishHour;
-    private Integer entranceGate;
+    @NotNull
     private Integer exitGate;
-    private Double totalValue;
-    private String parkingSpaces;
 }

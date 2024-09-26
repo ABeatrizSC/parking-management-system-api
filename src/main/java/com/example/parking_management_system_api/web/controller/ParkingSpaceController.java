@@ -22,7 +22,6 @@ public class ParkingSpaceController {
         return ResponseEntity.ok(createdSpace);
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<ParkingSpace> getParkingSpaceById(@PathVariable Long id) {
         Optional<ParkingSpace> parkingSpace = parkingSpacesService.findParkingSpaceById(id);
