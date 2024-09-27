@@ -123,7 +123,7 @@ public class TicketService {
 
     private boolean checkExitGate(Vehicle vehicle, TicketCheckOutCreateDto dto) {
         int exitGate = dto.getExitGate();
-        if (exitGate < 6 || exitGate > 10) {
+       if (exitGate < 6 || exitGate > 10) {
             return false;
         }
         if (vehicle.getAccessType() ==  VehicleTypeEnum.PASSENGER_CAR ||
@@ -137,7 +137,7 @@ public class TicketService {
     }
 
     private List<ParkingSpace> allocatedSpaces(Vehicle vehicle) {
-        int requiredSpaces = vehicle.getSlotSize();
+        int requiredSpaces = vehicle.getAccessType().getSlotSize();
         List<ParkingSpace> availableSpaces = parkingSpaceService.getAvailableParkingSpaces(); // Buscar vagas disponíveis
         List<ParkingSpace> consecutiveSpaces = new ArrayList<>();
         ParkingSpace previousSpace = null;
