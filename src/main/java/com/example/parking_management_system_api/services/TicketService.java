@@ -8,6 +8,7 @@ import com.example.parking_management_system_api.exception.IllegalStateException
 import com.example.parking_management_system_api.exception.InvalidPlateException;
 import com.example.parking_management_system_api.models.VehicleCategoryEnum;
 import com.example.parking_management_system_api.models.VehicleTypeEnum;
+import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
 import com.example.parking_management_system_api.repositories.TicketRepository;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
 import com.example.parking_management_system_api.web.dto.TicketCreateDto;
@@ -119,7 +120,7 @@ public class TicketService {
             return total;
         Duration duration = Duration.between(startHour, finishHour);
         long minutesParked = duration.toMinutes();
-        int slotsOccupied = vehicle.getSlotSize();
+        int slotsOccupied = vehicle.getAccessType().getSlotSize();
         double PRICE_PER_MINUTE = 0.10;
         total = minutesParked * PRICE_PER_MINUTE * slotsOccupied;
         double BASIC_PAYMENT = 5.00;

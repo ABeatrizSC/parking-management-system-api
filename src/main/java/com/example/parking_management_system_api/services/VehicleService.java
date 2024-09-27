@@ -18,18 +18,8 @@ public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
   
-    public VehicleResponseDto create(VehicleCreateDto dto){
-        Vehicle vehicle = vehicleRepository.save(VehicleMapper.toVehicle(dto));
-
-        if (vehicle.getAccessType()== VehicleTypeEnum.DELIVERY_TRUCK){
-            vehicle.setSlotSize(4);
-        }
-        if (vehicle.getAccessType()== VehicleTypeEnum.PASSENGER_CAR){
-            vehicle.setSlotSize(2);
-        }
-        if (vehicle.getAccessType()== VehicleTypeEnum.MOTORCYCLE){
-            vehicle.setSlotSize(1);
-        }
+    public VehicleResponseDto create(Vehicle vehicle){
+        vehicleRepository.save(vehicle);
         return VehicleMapper.toDto(vehicle);
     }
 
