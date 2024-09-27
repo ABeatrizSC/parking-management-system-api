@@ -2,8 +2,7 @@ package com.example.parking_management_system_api.web.controller;
 
 import com.example.parking_management_system_api.entities.Ticket;
 import com.example.parking_management_system_api.services.TicketService;
-import com.example.parking_management_system_api.web.dto.TicketCheckInCreateDto;
-import com.example.parking_management_system_api.web.dto.TicketCheckOutCreateDto;
+import com.example.parking_management_system_api.web.dto.TicketCreateDto;
 import com.example.parking_management_system_api.web.dto.TicketResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ public class TicketController {
     private final TicketService ticketService;
 
     @PostMapping("/checkin")
-    public ResponseEntity<Ticket> checkIn(@Valid @RequestBody TicketCheckInCreateDto dto) {
+    public ResponseEntity<Ticket> checkIn(@Valid @RequestBody TicketCreateDto dto) {
         Ticket ticket = ticketService.saveCheckIn(dto);
         return new ResponseEntity<>(ticket, HttpStatus.CREATED);
     }
@@ -32,8 +31,8 @@ public class TicketController {
     }
 
     @PostMapping("/checkout/{id}")
-    public ResponseEntity<Ticket> checkOut(@PathVariable Long id, @Valid @RequestBody TicketCheckOutCreateDto dto) {
-        Ticket ticket = ticketService.saveCheckOut(id, dto);
+    public ResponseEntity<Ticket> checkOut(@PathVariable Long id) {
+        Ticket ticket = ticketService.saveCheckOut(id);
         return ResponseEntity.ok(ticket);
     }
 

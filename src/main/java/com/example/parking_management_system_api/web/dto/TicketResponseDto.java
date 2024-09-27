@@ -18,6 +18,8 @@ public class TicketResponseDto {
     private Boolean parked;
     private LocalTime startHour;
     private LocalTime finishHour;
+    private Integer entranceGate;
+    private Integer exitGate;
     private Double totalValue;
     private String parkingSpaces;
 }
