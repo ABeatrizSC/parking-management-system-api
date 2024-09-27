@@ -12,6 +12,7 @@ import com.example.parking_management_system_api.repositories.TicketRepository;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
 import com.example.parking_management_system_api.web.dto.TicketCreateDto;
 import com.example.parking_management_system_api.web.dto.TicketResponseDto;
+import com.example.parking_management_system_api.web.dto.mapper.TicketMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class TicketService {
     private final ParkingSpaceService parkingSpaceService;
 
     @Transactional
-    public Ticket saveCheckIn(TicketCreateDto dto) {
+    public TicketResponseDto saveCheckIn(TicketCreateDto dto) {
         Vehicle vehicle = vehicleRepository.findByLicensePlate(dto.getLicensePlate())
                 .orElseThrow(() -> new InvalidPlateException("Wrong plate"));
         List<ParkingSpace> allocatedSpaces = allocatedSpaces(vehicle);
@@ -44,7 +45,7 @@ public class TicketService {
             if (!vehicle.getRegistered())
                 vehicle.setCategory(VehicleCategoryEnum.SEPARATED);
         }
-        Ticket ticket = new Ticket();
+        Ticket ticket = TicketMapper.toTicket(dto);
         ticket.setVehicle(vehicle);
         ticket.setStartHour(LocalTime.now());
         ticket.setParked(true);
@@ -53,11 +54,12 @@ public class TicketService {
                 .map(ParkingSpace::toString)
                 .collect(Collectors.joining(", "));
         ticket.setParkingSpaces(spaces);
-        return ticketRepository.save(ticket);
+        ticketRepository.save(ticket);
+        return TicketMapper.toDto(ticket);
     }
 
     @Transactional
-    public Ticket saveCheckOut(Long id) {
+    public TicketResponseDto saveCheckOut(Long id) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Ticket id=%s not found", id)));
         Vehicle vehicle = vehicleRepository.findById(ticket.getVehicle().getId())
@@ -66,19 +68,21 @@ public class TicketService {
         ticket.setFinishHour(LocalTime.now());
         ticket.setExitGate(setExitGate(vehicle));
         ticket.setTotalValue(calculateTotalValue(ticket.getStartHour(), LocalTime.now(), vehicle));
-        return ticketRepository.save(ticket);
+        ticketRepository.save(ticket);
+        return TicketMapper.toDto(ticket);
     }
 
     @Transactional
-    public List<Ticket> searchAll() {
-        return ticketRepository.findAll();
+    public List<TicketResponseDto> searchAll() {
+        List<Ticket> tickets = ticketRepository.findAll();
+        return TicketMapper.toListDto(tickets);
     }
 
     @Transactional
     public TicketResponseDto findById(Long id) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Ticket id=%s not found", id)));
-        return mapToResponseDto(ticket);
+        return TicketMapper.toDto(ticket);
     }
 
     private TicketResponseDto mapToResponseDto(Ticket ticket) {

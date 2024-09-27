@@ -7,6 +7,9 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TicketMapper {
     public static Ticket toTicket(TicketCreateDto dto) {
@@ -15,5 +18,9 @@ public class TicketMapper {
 
     public static TicketResponseDto toDto(Ticket ticket) {
         return new ModelMapper().map(ticket, TicketResponseDto.class);
+    }
+
+    public static List<TicketResponseDto> toListDto (List<Ticket> tickets) {
+        return tickets.stream().map(ticket -> toDto(ticket)).collect(Collectors.toList());
     }
 }

@@ -19,26 +19,26 @@ public class TicketController {
     private final TicketService ticketService;
 
     @PostMapping("/checkin")
-    public ResponseEntity<Ticket> checkIn(@Valid @RequestBody TicketCreateDto dto) {
-        Ticket ticket = ticketService.saveCheckIn(dto);
-        return new ResponseEntity<>(ticket, HttpStatus.CREATED);
+    public ResponseEntity<TicketResponseDto> checkIn(@Valid @RequestBody TicketCreateDto dto) {
+        TicketResponseDto responseDto = ticketService.saveCheckIn(dto);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TicketResponseDto> getTicketById(@PathVariable Long id) {
-        TicketResponseDto ticketResponse = ticketService.findById(id);
-        return ResponseEntity.ok(ticketResponse);
+        TicketResponseDto responseDto = ticketService.findById(id);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/checkout/{id}")
-    public ResponseEntity<Ticket> checkOut(@PathVariable Long id) {
-        Ticket ticket = ticketService.saveCheckOut(id);
-        return ResponseEntity.ok(ticket);
+    public ResponseEntity<TicketResponseDto> checkOut(@PathVariable Long id) {
+        TicketResponseDto responseDto = ticketService.saveCheckOut(id);
+        return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping
-    public ResponseEntity<List<Ticket>> getAllTickets() {
-        List<Ticket> tickets = ticketService.searchAll();
+    public ResponseEntity<List<TicketResponseDto>> getAllTickets() {
+        List<TicketResponseDto> tickets = ticketService.searchAll();
         return ResponseEntity.ok(tickets);
     }
 }
