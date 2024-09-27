@@ -1,5 +1,6 @@
 package com.example.parking_management_system_api.web.dto;
 
+import com.example.parking_management_system_api.entities.Ticket;
 import com.example.parking_management_system_api.entities.Vehicle;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class TicketResponseDto {
+public class TicketResponseDto{
     private Long id;
     private Vehicle vehicle;
     private Boolean parked;
