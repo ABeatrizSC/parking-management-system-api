@@ -42,15 +42,15 @@ public class TicketService {
             throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
         }
 
-        if (!checkEntryGate(vehicle, dto)) {
+        /*if (!checkEntryGate(vehicle, dto)) {
             throw new InvalidGateException("Wrong gate");
-        }
+        }*/
 
         Ticket ticket = new Ticket();
         ticket.setVehicle(vehicle);
         ticket.setStartHour(dto.getStartHour());
         ticket.setParked(true);
-        ticket.setEntranceGate(dto.getEntranceGate());
+        //ticket.setEntranceGate(dto.getEntranceGate());
 
         String spaces = allocatedSpaces.stream()
                 .map(ParkingSpace::toString)
@@ -73,7 +73,7 @@ public class TicketService {
 
         ticket.setParked(false);
         ticket.setFinishHour(dto.getFinishHour());
-        ticket.setExitGate(dto.getExitGate());
+        //ticket.setExitGate(dto.getExitGate());
 
         ParkingUtil parkingUtil = new ParkingUtil();
         ticket.setTotalValue(parkingUtil.calculateTotalValue(ticket.getStartHour(), dto.getFinishHour(), vehicle));
@@ -96,18 +96,18 @@ public class TicketService {
     private TicketResponseDto mapToResponseDto(Ticket ticket) {
         TicketResponseDto responseDto = new TicketResponseDto();
         responseDto.setId(ticket.getId());
-        responseDto.setLicensePlate(ticket.getVehicle().getLicensePlate());
+        //responseDto.setLicensePlate(ticket.getVehicle().getLicensePlate());
         responseDto.setStartHour(ticket.getStartHour());
         responseDto.setFinishHour(ticket.getFinishHour());
-        responseDto.setEntranceGate(ticket.getEntranceGate());
-        responseDto.setExitGate(ticket.getExitGate());
+        //responseDto.setEntranceGate(ticket.getEntranceGate());
+        //responseDto.setExitGate(ticket.getExitGate());
         responseDto.setTotalValue(ticket.getTotalValue());
         responseDto.setParkingSpaces(ticket.getParkingSpaces());
         return responseDto;
     }
 
-    private boolean checkEntryGate(Vehicle vehicle, TicketCheckInCreateDto dto) {
-        int entranceGate = dto.getEntranceGate();
+/*    private boolean checkEntryGate(Vehicle vehicle, TicketCheckInCreateDto dto) {
+        //int entranceGate = dto.getEntranceGate();
         if (entranceGate < 1 || entranceGate > 5) {
             return false;
         }
@@ -119,25 +119,25 @@ public class TicketService {
             return entranceGate == 1;
         }
         return false;
-    }
+    }*/
 
     private boolean checkExitGate(Vehicle vehicle, TicketCheckOutCreateDto dto) {
-        int exitGate = dto.getExitGate();
-        if (exitGate < 6 || exitGate > 10) {
+        //int exitGate = dto.getExitGate();
+/*        if (exitGate < 6 || exitGate > 10) {
             return false;
-        }
+        }*/
         if (vehicle.getAccessType() ==  VehicleTypeEnum.PASSENGER_CAR ||
                 vehicle.getAccessType() ==  VehicleTypeEnum.PUBLIC_SERVICE ||
                 vehicle.getAccessType() ==  VehicleTypeEnum.DELIVERY_TRUCK) {
             return true;
         } else if (vehicle.getAccessType() ==  VehicleTypeEnum.MOTORCYCLE) {
-            return exitGate == 10;
+            //return exitGate == 10;
         }
         return false;
     }
 
     private List<ParkingSpace> allocatedSpaces(Vehicle vehicle) {
-        int requiredSpaces = vehicle.getSlotSize();
+        int requiredSpaces = vehicle.getAccessType().getSlotSize();
         List<ParkingSpace> availableSpaces = parkingSpaceService.getAvailableParkingSpaces(); // Buscar vagas disponíveis
         List<ParkingSpace> consecutiveSpaces = new ArrayList<>();
         ParkingSpace previousSpace = null;

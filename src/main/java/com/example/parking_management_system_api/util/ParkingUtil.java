@@ -11,7 +11,7 @@ public class ParkingUtil {
     public double calculateTotalValue(LocalTime startHour, LocalTime finishHour, Vehicle vehicle) {
         Duration duration = Duration.between(startHour, finishHour);
         long minutesParked = duration.toMinutes();
-        int slotsOccupied = vehicle.getSlotSize();
+        int slotsOccupied = vehicle.getAccessType().getSlotSize();
             double PRICE_PER_MINUTE = 0.10;
             double total = minutesParked * PRICE_PER_MINUTE * slotsOccupied;
             double BASIC_PAYMENT = 5.00;
