@@ -6,7 +6,7 @@ spring:
     driverClassName: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/parking_system_db?useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: root
+    password: 123456
 
   jpa:
     show-sql: true
@@ -22,4 +22,4 @@ springdoc:
     path: /docs-parking-system.html
   api-docs:
     path: /docs-parking-system
-  packagesToScan: com.example.parking_management_system_api.resources
+  packagesToScan: com.example.parking_management_system_api.web.controller

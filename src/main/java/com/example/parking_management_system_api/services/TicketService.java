@@ -5,21 +5,24 @@ import com.example.parking_management_system_api.entities.Ticket;
 import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.exception.IllegalStateException;
-import com.example.parking_management_system_api.exception.InvalidGateException;
+import com.example.parking_management_system_api.exception.InvalidPlateException;
+import com.example.parking_management_system_api.models.VehicleCategoryEnum;
 import com.example.parking_management_system_api.models.VehicleTypeEnum;
 import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
 import com.example.parking_management_system_api.repositories.TicketRepository;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
-import com.example.parking_management_system_api.util.ParkingUtil;
-import com.example.parking_management_system_api.web.dto.TicketCheckInCreateDto;
-import com.example.parking_management_system_api.web.dto.TicketCheckOutCreateDto;
+import com.example.parking_management_system_api.web.dto.TicketCreateDto;
 import com.example.parking_management_system_api.web.dto.TicketResponseDto;
+import com.example.parking_management_system_api.web.dto.mapper.TicketMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 
@@ -29,74 +32,63 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final VehicleRepository vehicleRepository;
-    private final ParkingSpaceRepository parkingSpaceRepository;
     private final ParkingSpaceService parkingSpaceService;
-    private final VehicleService vehicleService;
 
     @Transactional
-    public Ticket saveCheckIn(TicketCheckInCreateDto dto) {
-        Vehicle vehicle = vehicleService.findByLicensePlate(dto.getLicensePlate());
-
+    public TicketResponseDto saveCheckIn(TicketCreateDto dto) {
+        Vehicle vehicle = vehicleRepository.findByLicensePlate(dto.getLicensePlate())
+                .orElseThrow(() -> new InvalidPlateException("Wrong plate"));
         List<ParkingSpace> allocatedSpaces = allocatedSpaces(vehicle);
         if (allocatedSpaces == null || allocatedSpaces.isEmpty()) {
             throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
         }
-
-        if (!checkEntryGate(vehicle, dto)) {
-            throw new InvalidGateException("Wrong gate");
+        if (dto.getCategory() == VehicleCategoryEnum.MONTHLY_PAYER) {
+            if (!vehicle.getRegistered())
+                vehicle.setCategory(VehicleCategoryEnum.SEPARATED);
         }
-
-        Ticket ticket = new Ticket();
+        Ticket ticket = TicketMapper.toTicket(dto);
         ticket.setVehicle(vehicle);
-        ticket.setStartHour(dto.getStartHour());
+        ticket.setStartHour(LocalTime.now());
         ticket.setParked(true);
-        ticket.setEntranceGate(dto.getEntranceGate());
-
+        ticket.setEntranceGate(setEntranceGate(vehicle));
         String spaces = allocatedSpaces.stream()
                 .map(ParkingSpace::toString)
                 .collect(Collectors.joining(", "));
         ticket.setParkingSpaces(spaces);
-
-        return ticketRepository.save(ticket);
+        ticketRepository.save(ticket);
+        return TicketMapper.toDto(ticket);
     }
 
     @Transactional
-    public Ticket saveCheckOut(Long id, TicketCheckOutCreateDto dto) {
+    public TicketResponseDto saveCheckOut(Long id) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Ticket id=%s not found", id)));
         Vehicle vehicle = vehicleRepository.findById(ticket.getVehicle().getId())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle id=%s not found", ticket.getVehicle().getId())));
-
-        if (!checkExitGate(vehicle, dto)) {
-            throw new InvalidGateException("Wrong gate");
-        }
-
         ticket.setParked(false);
-        ticket.setFinishHour(dto.getFinishHour());
-        ticket.setExitGate(dto.getExitGate());
-
-        ParkingUtil parkingUtil = new ParkingUtil();
-        ticket.setTotalValue(parkingUtil.calculateTotalValue(ticket.getStartHour(), dto.getFinishHour(), vehicle));
-
-        return ticketRepository.save(ticket);
+        ticket.setFinishHour(LocalTime.now());
+        ticket.setExitGate(setExitGate(vehicle));
+        ticket.setTotalValue(calculateTotalValue(ticket.getStartHour(), LocalTime.now(), vehicle));
+        ticketRepository.save(ticket);
+        return TicketMapper.toDto(ticket);
     }
 
     @Transactional
-    public List<Ticket> searchAll() {
-        return ticketRepository.findAll();
+    public List<TicketResponseDto> searchAll() {
+        List<Ticket> tickets = ticketRepository.findAll();
+        return TicketMapper.toListDto(tickets);
     }
 
     @Transactional
     public TicketResponseDto findById(Long id) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Ticket id=%s not found", id)));
-        return mapToResponseDto(ticket);
+        return TicketMapper.toDto(ticket);
     }
 
     private TicketResponseDto mapToResponseDto(Ticket ticket) {
         TicketResponseDto responseDto = new TicketResponseDto();
         responseDto.setId(ticket.getId());
-        responseDto.setLicensePlate(ticket.getVehicle().getLicensePlate());
         responseDto.setStartHour(ticket.getStartHour());
         responseDto.setFinishHour(ticket.getFinishHour());
         responseDto.setEntranceGate(ticket.getEntranceGate());
@@ -104,36 +96,6 @@ public class TicketService {
         responseDto.setTotalValue(ticket.getTotalValue());
         responseDto.setParkingSpaces(ticket.getParkingSpaces());
         return responseDto;
-    }
-
-    private boolean checkEntryGate(Vehicle vehicle, TicketCheckInCreateDto dto) {
-        int entranceGate = dto.getEntranceGate();
-        if (entranceGate < 1 || entranceGate > 5) {
-            return false;
-        }
-        if (vehicle.getAccessType() == VehicleTypeEnum.PASSENGER_CAR ||
-                vehicle.getAccessType() ==  VehicleTypeEnum.MOTORCYCLE ||
-                vehicle.getAccessType() ==  VehicleTypeEnum.PUBLIC_SERVICE) {
-            return vehicle.getAccessType() !=  VehicleTypeEnum.MOTORCYCLE || entranceGate == 5;
-        } else if (vehicle.getAccessType() ==  VehicleTypeEnum.DELIVERY_TRUCK) {
-            return entranceGate == 1;
-        }
-        return false;
-    }
-
-    private boolean checkExitGate(Vehicle vehicle, TicketCheckOutCreateDto dto) {
-        int exitGate = dto.getExitGate();
-       if (exitGate < 6 || exitGate > 10) {
-            return false;
-        }
-        if (vehicle.getAccessType() ==  VehicleTypeEnum.PASSENGER_CAR ||
-                vehicle.getAccessType() ==  VehicleTypeEnum.PUBLIC_SERVICE ||
-                vehicle.getAccessType() ==  VehicleTypeEnum.DELIVERY_TRUCK) {
-            return true;
-        } else if (vehicle.getAccessType() ==  VehicleTypeEnum.MOTORCYCLE) {
-            return exitGate == 10;
-        }
-        return false;
     }
 
     private List<ParkingSpace> allocatedSpaces(Vehicle vehicle) {
@@ -155,5 +117,33 @@ public class TicketService {
             previousSpace = currentSpace;
         }
         return null;
+    }
+
+    public double calculateTotalValue(LocalTime startHour, LocalTime finishHour, Vehicle vehicle) {
+        double total = 0;
+        if (vehicle.getCategory() == VehicleCategoryEnum.MONTHLY_PAYER|| vehicle.getCategory() == VehicleCategoryEnum.PUBLIC_SERVICE)
+            return total;
+        Duration duration = Duration.between(startHour, finishHour);
+        long minutesParked = duration.toMinutes();
+        int slotsOccupied = vehicle.getAccessType().getSlotSize();
+        double PRICE_PER_MINUTE = 0.10;
+        total = minutesParked * PRICE_PER_MINUTE * slotsOccupied;
+        double BASIC_PAYMENT = 5.00;
+        if (total <= BASIC_PAYMENT) {
+            total = BASIC_PAYMENT;
+        }
+        return total;
+    }
+
+    private Integer setEntranceGate(Vehicle vehicle) {
+        return switch (vehicle.getAccessType()) {
+            case MOTORCYCLE -> 5;
+            case DELIVERY_TRUCK -> 1;
+            default -> ThreadLocalRandom.current().nextInt(1, 6);
+        };
+    }
+
+    private Integer setExitGate(Vehicle vehicle) {
+        return vehicle.getAccessType() == VehicleTypeEnum.MOTORCYCLE? 10 : ThreadLocalRandom.current().nextInt(1, 6);
     }
 }
