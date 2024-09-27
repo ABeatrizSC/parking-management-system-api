@@ -14,8 +14,8 @@ import java.time.LocalTime;
 @Getter
 @Setter
 public class TicketCheckOutCreateDto {
+
     @NotNull
     private LocalTime finishHour;
-    @NotNull
-    private Integer exitGate;
+
 }

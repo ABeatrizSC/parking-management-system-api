@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class TicketService {
+
     private final TicketRepository ticketRepository;
     private final VehicleRepository vehicleRepository;
     private final ParkingSpaceRepository parkingSpaceRepository;
@@ -35,22 +36,48 @@ public class TicketService {
     @Transactional
     public Ticket saveCheckIn(TicketCheckInCreateDto dto) {
         Vehicle vehicle = vehicleService.findByLicensePlate(dto.getLicensePlate());
-        if (allocatedSpaces(vehicle) == null) {
+
+        List<ParkingSpace> allocatedSpaces = allocatedSpaces(vehicle);
+        if (allocatedSpaces == null || allocatedSpaces.isEmpty()) {
             throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
         }
+
         if (!checkEntryGate(vehicle, dto)) {
             throw new InvalidGateException("Wrong gate");
         }
+
         Ticket ticket = new Ticket();
         ticket.setVehicle(vehicle);
         ticket.setStartHour(dto.getStartHour());
         ticket.setParked(true);
         ticket.setEntranceGate(dto.getEntranceGate());
-        List<ParkingSpace> parkingSpaces = allocatedSpaces(vehicle);
-        String spaces = parkingSpaces.stream()
-                .map(parkingSpace -> parkingSpace.toString())
+
+        String spaces = allocatedSpaces.stream()
+                .map(ParkingSpace::toString)
                 .collect(Collectors.joining(", "));
         ticket.setParkingSpaces(spaces);
+
+        return ticketRepository.save(ticket);
+    }
+
+    @Transactional
+    public Ticket saveCheckOut(Long id, TicketCheckOutCreateDto dto) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Ticket id=%s not found", id)));
+        Vehicle vehicle = vehicleRepository.findById(ticket.getVehicle().getId())
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle id=%s not found", ticket.getVehicle().getId())));
+
+        if (!checkExitGate(vehicle, dto)) {
+            throw new InvalidGateException("Wrong gate");
+        }
+
+        ticket.setParked(false);
+        ticket.setFinishHour(dto.getFinishHour());
+        ticket.setExitGate(dto.getExitGate());
+
+        ParkingUtil parkingUtil = new ParkingUtil();
+        ticket.setTotalValue(parkingUtil.calculateTotalValue(ticket.getStartHour(), dto.getFinishHour(), vehicle));
+
         return ticketRepository.save(ticket);
     }
 
@@ -60,20 +87,23 @@ public class TicketService {
     }
 
     @Transactional
-    public Ticket saveCheckOut(Long id, TicketCheckOutCreateDto dto) {
+    public TicketResponseDto findById(Long id) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Ticket id=%s not found", id)));
-        Vehicle vehicle = vehicleRepository.findById(ticket.getVehicle().getId())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle id=%s not found", ticket.getVehicle().getId())));
-        if (!checkExitGate(vehicle, dto)) {
-            throw new InvalidGateException("Wrong gate");
-        }
-        ticket.setParked(false);
-        ticket.setFinishHour(dto.getFinishHour());
-        ticket.setExitGate(dto.getExitGate());
-        ParkingUtil parkingUtil = new ParkingUtil();
-        ticket.setTotalValue(parkingUtil.calculateTotalValue(ticket.getStartHour(), dto.getFinishHour(), vehicle));
-        return ticketRepository.save(ticket);
+        return mapToResponseDto(ticket);
+    }
+
+    private TicketResponseDto mapToResponseDto(Ticket ticket) {
+        TicketResponseDto responseDto = new TicketResponseDto();
+        responseDto.setId(ticket.getId());
+        responseDto.setLicensePlate(ticket.getVehicle().getLicensePlate());
+        responseDto.setStartHour(ticket.getStartHour());
+        responseDto.setFinishHour(ticket.getFinishHour());
+        responseDto.setEntranceGate(ticket.getEntranceGate());
+        responseDto.setExitGate(ticket.getExitGate());
+        responseDto.setTotalValue(ticket.getTotalValue());
+        responseDto.setParkingSpaces(ticket.getParkingSpaces());
+        return responseDto;
     }
 
     private boolean checkEntryGate(Vehicle vehicle, TicketCheckInCreateDto dto) {
@@ -90,6 +120,7 @@ public class TicketService {
         }
         return false;
     }
+
     private boolean checkExitGate(Vehicle vehicle, TicketCheckOutCreateDto dto) {
         int exitGate = dto.getExitGate();
         if (exitGate < 6 || exitGate > 10) {
@@ -104,11 +135,13 @@ public class TicketService {
         }
         return false;
     }
+
     private List<ParkingSpace> allocatedSpaces(Vehicle vehicle) {
         int requiredSpaces = vehicle.getSlotSize();
-        List<ParkingSpace> availableSpaces = parkingSpaceService.getAvailableParkingSpaces();
+        List<ParkingSpace> availableSpaces = parkingSpaceService.getAvailableParkingSpaces(); // Buscar vagas disponíveis
         List<ParkingSpace> consecutiveSpaces = new ArrayList<>();
         ParkingSpace previousSpace = null;
+
         for (ParkingSpace currentSpace : availableSpaces) {
             if (previousSpace == null || currentSpace.getNumber() == previousSpace.getNumber() + 1) {
                 consecutiveSpaces.add(currentSpace);
