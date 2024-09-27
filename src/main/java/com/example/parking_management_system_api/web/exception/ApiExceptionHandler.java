@@ -1,9 +1,7 @@
 package com.example.parking_management_system_api.web.exception;
 
-import com.example.parking_management_system_api.exception.EntityNotFoundException;
+import com.example.parking_management_system_api.exception.*;
 import com.example.parking_management_system_api.exception.IllegalStateException;
-import com.example.parking_management_system_api.exception.InvalidFieldException;
-import com.example.parking_management_system_api.exception.InvalidPlateException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
@@ -55,4 +56,11 @@ public class ApiExceptionHandler {
 
     }
 
+    @ExceptionHandler(InvalidVehicleCategoryAndTypeException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidVehicleCategoryAndTypeException(InvalidVehicleCategoryAndTypeException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", ex.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
 }
