@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
+import static com.example.parking_management_system_api.models.VehicleCategoryEnum.MONTHLY_PAYER;
+import static com.example.parking_management_system_api.web.dto.mapper.VehicleMapper.toVehicle;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/vehicles")
@@ -20,7 +23,9 @@ public class VehicleController {
 
     @PostMapping
     public ResponseEntity<VehicleResponseDto> create(@RequestBody VehicleCreateDto dto){
-        VehicleResponseDto response = vehicleService.create(dto);
+        Vehicle vehicle = toVehicle(dto);
+        vehicle.setRegistered(vehicle.getCategory() == MONTHLY_PAYER ? true : false);
+        VehicleResponseDto response = vehicleService.create(vehicle);
        return ResponseEntity.created(URI.create("/api/vehicles"
         + dto.getLicensePlate())).body(response);
     }
