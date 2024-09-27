@@ -15,6 +15,7 @@ import com.example.parking_management_system_api.web.dto.TicketResponseDto;
 import com.example.parking_management_system_api.web.dto.mapper.TicketMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class TicketService {
 
@@ -35,25 +37,30 @@ public class TicketService {
 
     @Transactional
     public TicketResponseDto saveCheckIn(TicketCreateDto dto) {
+        log.debug("Entering saveCheckIn method with DTO: " + dto);
         Vehicle vehicle = vehicleRepository.findByLicensePlate(dto.getLicensePlate())
                 .orElseThrow(() -> new InvalidPlateException("Wrong plate"));
-        List<ParkingSpace> allocatedSpaces = allocatedSpaces(vehicle);
-        if (allocatedSpaces == null || allocatedSpaces.isEmpty()) {
-            throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
-        }
-        if (dto.getCategory() == VehicleCategoryEnum.MONTHLY_PAYER) {
+        log.debug("After finding vehicle by license plate: " + dto.getLicensePlate());
+        //List<ParkingSpace> allocatedSpaces = allocatedSpaces(vehicle);
+//        if (allocatedSpaces == null || allocatedSpaces.isEmpty()) {
+//            throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
+//        }
+        if (dto.getCategory() == VehicleCategoryEnum.MONTHLY_PAYER) { //mudar isso para se acabar as vagas de mensalista
             if (!vehicle.getRegistered())
                 vehicle.setCategory(VehicleCategoryEnum.SEPARATED);
         }
         Ticket ticket = TicketMapper.toTicket(dto);
         ticket.setVehicle(vehicle);
+        log.debug("Vehicle: " + vehicle);
+        log.debug("DTO Category: " + dto.getCategory());
         ticket.setStartHour(LocalTime.now());
         ticket.setParked(true);
         ticket.setEntranceGate(setEntranceGate(vehicle));
-        String spaces = allocatedSpaces.stream()
-                .map(ParkingSpace::toString)
-                .collect(Collectors.joining(", "));
-        ticket.setParkingSpaces(spaces);
+//        String spaces = allocatedSpaces.stream()
+//                .map(ParkingSpace::toString)
+//                .collect(Collectors.joining(", "));
+//        ticket.setParkingSpaces(spaces);
+//        log.debug("Allocated spaces: " + allocatedSpaces);
         ticketRepository.save(ticket);
         return TicketMapper.toDto(ticket);
     }
@@ -85,21 +92,9 @@ public class TicketService {
         return TicketMapper.toDto(ticket);
     }
 
-    private TicketResponseDto mapToResponseDto(Ticket ticket) {
-        TicketResponseDto responseDto = new TicketResponseDto();
-        responseDto.setId(ticket.getId());
-        responseDto.setStartHour(ticket.getStartHour());
-        responseDto.setFinishHour(ticket.getFinishHour());
-        responseDto.setEntranceGate(ticket.getEntranceGate());
-        responseDto.setExitGate(ticket.getExitGate());
-        responseDto.setTotalValue(ticket.getTotalValue());
-        responseDto.setParkingSpaces(ticket.getParkingSpaces());
-        return responseDto;
-    }
-
     private List<ParkingSpace> allocatedSpaces(Vehicle vehicle) {
         int requiredSpaces = vehicle.getSlotSize();
-        List<ParkingSpace> availableSpaces = parkingSpaceService.getAvailableParkingSpaces(); // Buscar vagas disponíveis
+        List<ParkingSpace> availableSpaces = parkingSpaceService.getAvailableParkingSpaces();
         List<ParkingSpace> consecutiveSpaces = new ArrayList<>();
         ParkingSpace previousSpace = null;
 
