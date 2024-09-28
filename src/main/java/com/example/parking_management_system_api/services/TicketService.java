@@ -42,10 +42,10 @@ public class TicketService {
         Vehicle vehicle = vehicleRepository.findByLicensePlate(dto.getLicensePlate())
                 .orElseThrow(() -> new InvalidPlateException("Wrong plate"));
         log.debug("After finding vehicle by license plate: " + dto.getLicensePlate());
-        //List<ParkingSpace> allocatedSpaces = allocatedSpaces(vehicle);
-//        if (allocatedSpaces == null || allocatedSpaces.isEmpty()) {
-//            throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
-//        }
+        List<ParkingSpace> allocatedSpaces = allocatedSpaces(vehicle);
+           if (allocatedSpaces == null || allocatedSpaces.isEmpty()) {
+               throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
+           }
         if (dto.getCategory() == VehicleCategoryEnum.MONTHLY_PAYER) { //mudar isso para se acabar as vagas de mensalista
             if (!vehicle.getRegistered())
                 vehicle.setCategory(VehicleCategoryEnum.SEPARATED);
@@ -57,11 +57,11 @@ public class TicketService {
         ticket.setStartHour(LocalTime.now());
         ticket.setParked(true);
         ticket.setEntranceGate(setEntranceGate(vehicle));
-//        String spaces = allocatedSpaces.stream()
-//                .map(ParkingSpace::toString)
-//                .collect(Collectors.joining(", "));
-//        ticket.setParkingSpaces(spaces);
-//        log.debug("Allocated spaces: " + allocatedSpaces);
+            String spaces = allocatedSpaces.stream()
+                   .map(ParkingSpace::toString)
+                   .collect(Collectors.joining(", "));
+              ticket.setParkingSpaces(spaces);
+          log.debug("Allocated spaces: " + allocatedSpaces);
         ticketRepository.save(ticket);
         return TicketMapper.toDto(ticket);
     }
