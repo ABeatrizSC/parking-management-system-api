@@ -2,6 +2,9 @@ package com.example.parking_management_system_api.services;
 
 import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
+import com.example.parking_management_system_api.exception.InvalidFieldException;
+import com.example.parking_management_system_api.exception.InvalidVehicleCategoryAndTypeException;
+import com.example.parking_management_system_api.exception.VehicleNotFoundException;
 import com.example.parking_management_system_api.models.VehicleTypeEnum;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
 import com.example.parking_management_system_api.web.dto.VehicleCreateDto;
@@ -11,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
+import static com.example.parking_management_system_api.models.VehicleCategoryEnum.MONTHLY_PAYER;
 
 @RequiredArgsConstructor
 @Service
@@ -18,27 +24,47 @@ public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
   
-    public VehicleResponseDto create(Vehicle vehicle){
+    public VehicleResponseDto create(VehicleCreateDto dto){
+        Vehicle vehicle = VehicleMapper.toVehicle(dto);
+
+        if (!vehicle.getCategory().getVehicleTypesAvailable().contains(vehicle.getAccessType())) {
+            throw new InvalidVehicleCategoryAndTypeException(vehicle.getCategory(), vehicle.getAccessType());}
+        if (vehicle.getLicensePlate() == null || vehicle.getLicensePlate().isBlank() || vehicle.getLicensePlate().isEmpty()
+                || findByLicensePlateVerify(vehicle.getLicensePlate()).isPresent()){
+            throw new InvalidFieldException();}
+
+        vehicle.setRegistered(vehicle.getCategory() == MONTHLY_PAYER ? true : false);
+
         vehicleRepository.save(vehicle);
         return VehicleMapper.toDto(vehicle);
     }
 
     public Vehicle findById(Long id) {
-        return vehicleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle id=%s not found", id)));
+        return vehicleRepository.findById(id).orElseThrow(VehicleNotFoundException::new);
     }
 
     public Vehicle findByLicensePlate(String licensePlate) {
-        return vehicleRepository.findByLicensePlate(licensePlate).orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle plate=%s not found", licensePlate)));
+        return vehicleRepository.findByLicensePlate(licensePlate).orElseThrow(VehicleNotFoundException::new);
+    }
+
+    public Optional<Vehicle> findByLicensePlateVerify(String licensePlate) {
+        return vehicleRepository.findByLicensePlate(licensePlate);
     }
 
     public List<Vehicle> findAll(){
         return vehicleRepository.findAll();
     }
 
-    public Vehicle update(Long id, Vehicle vehicleUpdated){
-        Vehicle vehicle = findById(id);
-        updateData(vehicle, vehicleUpdated);
-        return vehicleRepository.save(vehicle);
+    public Vehicle update(Long id, VehicleCreateDto vehicle){
+
+        Vehicle vehicleUpdated = VehicleMapper.toVehicle(vehicle);
+
+        if (!vehicleUpdated.getCategory().getVehicleTypesAvailable().contains(vehicleUpdated.getAccessType())) {
+            throw new InvalidVehicleCategoryAndTypeException(vehicleUpdated.getCategory(), vehicleUpdated.getAccessType());}
+
+        Vehicle vehicles = findById(id);
+        updateData(vehicles, vehicleUpdated);
+        return vehicleRepository.save(vehicles);
     }
 
     public void updateData(Vehicle vehicle, Vehicle vehicleUpdated) {
@@ -48,6 +74,7 @@ public class VehicleService {
     }
 
     public void delete(Long id){
+        findById(id);
         vehicleRepository.deleteById(id);
     }
 }
