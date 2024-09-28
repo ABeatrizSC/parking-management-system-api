@@ -3,6 +3,7 @@ package com.example.parking_management_system_api.web.controller;
 import com.example.parking_management_system_api.entities.ParkingSpace;
 import com.example.parking_management_system_api.services.ParkingSpaceService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,4 +56,7 @@ public class ParkingSpaceController {
         List<ParkingSpace> availableSpaces = parkingSpacesService.getAvailableParkingSpaces();
         return ResponseEntity.ok(availableSpaces);
     }
+
+
+
 }
