@@ -46,13 +46,23 @@ public class ApiExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.CONFLICT, ex.getMessage()));
     }
 
-    @ExceptionHandler(InvalidFieldException.class)
-    public ResponseEntity<ErrorMessage> invalidFieldException (InvalidFieldException e, HttpServletRequest request){
+
+   @ExceptionHandler(InvalidFieldException.class)
+   public ResponseEntity<Map<String, String>> invalidFieldException (InvalidFieldException e){
+       log.error("API error - ", e);
+       Map<String, String> errorResponse = new HashMap<>();
+       errorResponse.put("error", e.getMessage());
+
+       return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+
+   }
+
+    @ExceptionHandler(VehicleNotFoundException.class)
+    public ResponseEntity<Map<String, String>> vehicleNotFoundException (VehicleNotFoundException e){
         log.error("API error - ", e);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new ErrorMessage(request,HttpStatus.BAD_REQUEST, "Invalid fields."));
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 
     }
 

@@ -1,9 +1,11 @@
 package com.example.parking_management_system_api.web.controller;
 import com.example.parking_management_system_api.entities.Vehicle;
+import com.example.parking_management_system_api.exception.InvalidFieldException;
 import com.example.parking_management_system_api.exception.InvalidVehicleCategoryAndTypeException;
 import com.example.parking_management_system_api.services.VehicleService;
 import com.example.parking_management_system_api.web.dto.VehicleCreateDto;
 import com.example.parking_management_system_api.web.dto.VehicleResponseDto;
+import com.example.parking_management_system_api.web.dto.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -23,15 +25,7 @@ public class VehicleController {
 
     @PostMapping
     public ResponseEntity<VehicleResponseDto> create(@RequestBody VehicleCreateDto dto){
-        Vehicle vehicle = toVehicle(dto);
-
-        if (!vehicle.getCategory().getVehicleTypesAvailable().contains(vehicle.getAccessType())) {
-            throw new InvalidVehicleCategoryAndTypeException(vehicle.getCategory(), vehicle.getAccessType());
-        }
-
-        vehicle.setRegistered(vehicle.getCategory() == MONTHLY_PAYER ? true : false);
-        VehicleResponseDto response = vehicleService.create(vehicle);
-
+        VehicleResponseDto response = vehicleService.create(dto);
         return ResponseEntity.created(URI.create("/api/vehicles"
                 + dto.getLicensePlate())).body(response);
     }
@@ -48,14 +42,14 @@ public class VehicleController {
         return ResponseEntity.ok(vehicle);
     }
 
-    @GetMapping("?licensePlate={licensePlate}")
-    public ResponseEntity<Vehicle> getByLicensePlate(@RequestParam String licensePlate) {
+    @GetMapping("/licensePlate={licensePlate}")
+    public ResponseEntity<VehicleResponseDto> getByLicensePlate(@PathVariable String licensePlate) {
         Vehicle vehicle = vehicleService.findByLicensePlate(licensePlate);
-        return ResponseEntity.ok(vehicle);
+        return ResponseEntity.ok(VehicleMapper.toDto(vehicle));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody Vehicle vehicle){
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody VehicleCreateDto vehicle){
         vehicleService.update(id, vehicle);
         return ResponseEntity.noContent().build();
     }
