@@ -1,8 +1,8 @@
 CREATE TABLE tickets (
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    startHour TIME NULL,
-    finishHour TIME NULL,
-    totalValue DOUBLE NULL,
+    start_hour TIME NULL,
+    finish_hour TIME NULL,
+    total_value DOUBLE NULL,
     parked TINYINT(1) NULL,
     entrance_gate BIGINT NULL,
     exit_gate BIGINT NULL,
@@ -21,12 +21,12 @@ CREATE TABLE vehicles (
 CREATE TABLE parking_spaces (
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     number BIGINT NOT NULL,
-    isOccupied TINYINT(1) NOT NULL,
-    slotType VARCHAR(200) NOT NULL,
+    is_occupied TINYINT(1) NOT NULL,
+    slot_type VARCHAR(200) NOT NULL,
     vehicles_id BIGINT
 );
 
 ALTER TABLE parking_spaces
-    ADD CONSTRAINT fk_vehicle_id
+    ADD CONSTRAINT fk_vehicles_id
     FOREIGN KEY (vehicles_id)
     REFERENCES vehicles(id);

@@ -37,7 +37,7 @@ public class Ticket implements Serializable {
     @Column(name = "parking_spaces")
     private String parkingSpaces;
     @OneToOne
-    @JoinColumn(name = "id_vehicle", nullable = false)
+    @JoinColumn(name = "vehicles_id", nullable = false)
     private Vehicle vehicle;
 
     @Override
