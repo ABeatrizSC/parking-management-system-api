@@ -7,7 +7,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 public enum SlotTypeEnum {
-    MONTHLY(200);
+    MONTHLY(200),
+    CASUAL(300);
 
     @Setter
     private int quantity;
