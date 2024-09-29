@@ -20,12 +20,12 @@ public class Vehicle implements Serializable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "licensePlate", nullable = false, length = 100)
+    @Column(name = "license_plate", nullable = false, length = 100)
     private String licensePlate;
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = 100)
     private VehicleCategoryEnum category;
-    @Column(name = "accessType", nullable = false, length = 50)
+    @Column(name = "access_type", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     private VehicleTypeEnum accessType;
     @Column(nullable = false)
