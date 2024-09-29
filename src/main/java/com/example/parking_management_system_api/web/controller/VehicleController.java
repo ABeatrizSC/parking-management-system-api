@@ -1,13 +1,20 @@
 package com.example.parking_management_system_api.web.controller;
 import com.example.parking_management_system_api.entities.Vehicle;
+import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.exception.InvalidFieldException;
 import com.example.parking_management_system_api.exception.InvalidVehicleCategoryAndTypeException;
 import com.example.parking_management_system_api.services.VehicleService;
+import com.example.parking_management_system_api.web.dto.TicketResponseDto;
 import com.example.parking_management_system_api.web.dto.VehicleCreateDto;
 import com.example.parking_management_system_api.web.dto.VehicleResponseDto;
 import com.example.parking_management_system_api.web.dto.mapper.VehicleMapper;
+import com.example.parking_management_system_api.web.exception.ErrorMessage;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,12 +24,22 @@ import java.util.List;
 import static com.example.parking_management_system_api.models.VehicleCategoryEnum.MONTHLY_PAYER;
 import static com.example.parking_management_system_api.web.dto.mapper.VehicleMapper.toVehicle;
 
+@Tag(name = "Vehicles", description = "This section contains the endpoints for vehicle management, such as" +
+        " creation, deletion and searching.")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/vehicles")
 public class VehicleController {
     private final VehicleService vehicleService;
 
+    @Operation(summary = "Create a new vehicle in the database.", description = "Endpoint for creating" +
+            " new vehicles via POST request.",
+    responses = {
+            @ApiResponse(responseCode = "201", description = "Vehicle created successfully.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Type incompatibility or invalid plate.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+    })
     @PostMapping
     public ResponseEntity<VehicleResponseDto> create(@RequestBody VehicleCreateDto dto){
         VehicleResponseDto response = vehicleService.create(dto);
@@ -30,6 +47,15 @@ public class VehicleController {
                 + dto.getLicensePlate())).body(response);
     }
 
+
+    @Operation(summary = "Return all vehicles in the database.", description = "Endpoint for listing all vehicles" +
+            " present in the database. The list will be empty if no vehicles are found.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Vehicle created successfully.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Type incompatibility or invalid plate.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+            })
     @GetMapping
     public ResponseEntity<List<Vehicle>> getAll(){
         List<Vehicle> vehicles = vehicleService.findAll();
