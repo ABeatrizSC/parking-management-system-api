@@ -24,6 +24,7 @@ public class ParkingSpace implements Serializable {
     private boolean isOccupied;
 
     @Column(name = "slot_type", nullable = false, length = 200)
+    @Enumerated(EnumType.STRING)
     private SlotTypeEnum slotType;
 
     @ManyToOne

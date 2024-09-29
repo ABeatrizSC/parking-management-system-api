@@ -6,6 +6,7 @@ import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.exception.IllegalStateException;
 import com.example.parking_management_system_api.exception.InvalidPlateException;
+import com.example.parking_management_system_api.models.SlotTypeEnum;
 import com.example.parking_management_system_api.models.VehicleCategoryEnum;
 import com.example.parking_management_system_api.models.VehicleTypeEnum;
 import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -35,33 +37,34 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final VehicleRepository vehicleRepository;
     private final ParkingSpaceService parkingSpaceService;
+    private final ParkingSpaceRepository parkingSpaceRepository;
 
     @Transactional
     public TicketResponseDto saveCheckIn(TicketCreateDto dto) {
-        log.debug("Entering saveCheckIn method with DTO: " + dto);
         Vehicle vehicle = vehicleRepository.findByLicensePlate(dto.getLicensePlate())
                 .orElseThrow(() -> new InvalidPlateException("Wrong plate"));
-        log.debug("After finding vehicle by license plate: " + dto.getLicensePlate());
         List<ParkingSpace> allocatedSpaces = allocatedSpaces(vehicle);
-           if (allocatedSpaces == null || allocatedSpaces.isEmpty()) {
-               throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
-           }
+            if (allocatedSpaces.isEmpty()) {
+                if (vehicle.getAccessType() == VehicleTypeEnum.PUBLIC_SERVICE) {
+                    allocatedSpaces = new ArrayList<>();
+                }
+                else
+                    throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
+            }
         if (dto.getCategory() == VehicleCategoryEnum.MONTHLY_PAYER) { //mudar isso para se acabar as vagas de mensalista
             if (!vehicle.getRegistered())
                 vehicle.setCategory(VehicleCategoryEnum.SEPARATED);
         }
         Ticket ticket = TicketMapper.toTicket(dto);
         ticket.setVehicle(vehicle);
-        log.debug("Vehicle: " + vehicle);
-        log.debug("DTO Category: " + dto.getCategory());
         ticket.setStartHour(LocalTime.now());
         ticket.setParked(true);
         ticket.setEntranceGate(setEntranceGate(vehicle));
-            String spaces = allocatedSpaces.stream()
-                   .map(ParkingSpace::toString)
-                   .collect(Collectors.joining(", "));
-              ticket.setParkingSpaces(spaces);
-          log.debug("Allocated spaces: " + allocatedSpaces);
+        String spaces = allocatedSpaces.stream()
+               .map(ParkingSpace::toString)
+               .collect(Collectors.joining(", "));
+        ticket.setParkingSpaces(spaces);
+
         ticketRepository.save(ticket);
         return TicketMapper.toDto(ticket);
     }
@@ -103,6 +106,11 @@ public class TicketService {
             if (previousSpace == null || currentSpace.getNumber() == previousSpace.getNumber() + 1) {
                 consecutiveSpaces.add(currentSpace);
                 if (consecutiveSpaces.size() == requiredSpaces) {
+                    for (ParkingSpace space : consecutiveSpaces) {
+                        space.setOccupied(true);
+                        space.setVehicle(vehicle);
+                        parkingSpaceService.updateParkingSpace(space);
+                    }
                     return consecutiveSpaces;
                 }
             } else {
@@ -111,7 +119,7 @@ public class TicketService {
             }
             previousSpace = currentSpace;
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public double calculateTotalValue(LocalTime startHour, LocalTime finishHour, Vehicle vehicle) {
