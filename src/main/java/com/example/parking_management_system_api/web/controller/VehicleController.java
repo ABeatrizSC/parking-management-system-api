@@ -32,12 +32,12 @@ import static com.example.parking_management_system_api.web.dto.mapper.VehicleMa
 public class VehicleController {
     private final VehicleService vehicleService;
 
-    @Operation(summary = "Create a new vehicle in the database.", description = "Endpoint for creating" +
+    @Operation(summary = "Creates a new vehicle in the database.", description = "Endpoint for creating" +
             " new vehicles via POST request.",
     responses = {
             @ApiResponse(responseCode = "201", description = "Vehicle created successfully.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "Type incompatibility or invalid plate.",
+            @ApiResponse(responseCode = "400", description = "Type incompatibility or invalid values.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     })
     @PostMapping
@@ -48,13 +48,11 @@ public class VehicleController {
     }
 
 
-    @Operation(summary = "Return all vehicles in the database.", description = "Endpoint for listing all vehicles" +
+    @Operation(summary = "Returns all vehicles in the database.", description = "Endpoint for listing all vehicles" +
             " present in the database. The list will be empty if no vehicles are found.",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "Vehicle created successfully.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
-                    @ApiResponse(responseCode = "400", description = "Type incompatibility or invalid plate.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+                    @ApiResponse(responseCode = "200", description = "Vehicle list returned.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class)))
             })
     @GetMapping
     public ResponseEntity<List<Vehicle>> getAll(){
@@ -62,24 +60,58 @@ public class VehicleController {
         return ResponseEntity.ok(vehicles);
     }
 
+    @Operation(summary = "Returns a given vehicle by ID.", description = "Endpoint for looking up a vehicle in the database" +
+            " using ID as the parameter.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Vehicle listed.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Vehicle not found.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+            })
     @GetMapping("/{id}")
     public ResponseEntity<Vehicle> getById(@PathVariable Long id) {
         Vehicle vehicle = vehicleService.findById(id);
         return ResponseEntity.ok(vehicle);
     }
 
+    @Operation(summary = "Returns a given vehicle by plate.", description = "Endpoint for looking up a vehicle in the database" +
+            " using the license plate as the parameter.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Vehicle listed.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Vehicle not found.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+            })
     @GetMapping("/licensePlate={licensePlate}")
     public ResponseEntity<VehicleResponseDto> getByLicensePlate(@PathVariable String licensePlate) {
         Vehicle vehicle = vehicleService.findByLicensePlate(licensePlate);
         return ResponseEntity.ok(VehicleMapper.toDto(vehicle));
     }
 
+    @Operation(summary = "Updates a given vehicle by ID.", description = "Endpoint for updating up a vehicle in the database" +
+            " using ID as the parameter.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "No content, update successful.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Vehicle not found.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "400", description = "Type incompatibility or invalid values.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+            })
     @PatchMapping("/{id}")
     public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody VehicleCreateDto vehicle){
         vehicleService.update(id, vehicle);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Deletes a given vehicle by ID.", description = "Endpoint for deleting up a vehicle in the database" +
+            " using ID as the parameter.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "No content, update successful.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Vehicle not found.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+            })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete (@PathVariable Long id){
         vehicleService.delete(id);
