@@ -5,6 +5,7 @@ import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.models.VehicleCategoryEnum;
 import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
+import com.example.parking_management_system_api.web.dto.ParkingStatisticsDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +25,7 @@ public class ParkingSpaceService {
     private final VehicleService vehicleService;
     private final VehicleRepository vehicleRepository;
 
-    public ParkingSpace createParkingSpace(ParkingSpace parkingSpaces) {
-        return parkingSpacesRepository.save(parkingSpaces);
-    }
+
 
     public Optional<ParkingSpace> findParkingSpaceById(Long id) {
         return parkingSpacesRepository.findById(id);
@@ -34,6 +33,7 @@ public class ParkingSpaceService {
 
     public List<ParkingSpace> getAllParkingSpaces() {
         return parkingSpacesRepository.findAll();
+
     }
 
     public ParkingSpace updateParkingSpace(ParkingSpace parkingSpaces) {
@@ -51,6 +51,13 @@ public class ParkingSpaceService {
     }
 
     public List<ParkingSpace> getAvailableParkingSpaces() {
+        return parkingSpacesRepository.findAll().stream()
+                .filter(parkingSpace -> !parkingSpace.isOccupied() )
+                .toList();
+
+    }
+
+    public List<ParkingSpace> getOccupiedParkingSpaces() {
         return parkingSpacesRepository.findAll().stream()
                 .filter(parkingSpace -> !parkingSpace.isOccupied() )
                 .toList();

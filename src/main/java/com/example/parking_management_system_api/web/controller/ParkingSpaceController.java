@@ -17,11 +17,6 @@ public class ParkingSpaceController {
 
     private final ParkingSpaceService parkingSpacesService;
 
-    @PostMapping
-    public ResponseEntity<ParkingSpace> createParkingSpace(@RequestBody ParkingSpace parkingSpaces) {
-        ParkingSpace createdSpace = parkingSpacesService.createParkingSpace(parkingSpaces);
-        return ResponseEntity.ok(createdSpace);
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ParkingSpace> getParkingSpaceById(@PathVariable Long id) {
@@ -56,6 +51,15 @@ public class ParkingSpaceController {
         List<ParkingSpace> availableSpaces = parkingSpacesService.getAvailableParkingSpaces();
         return ResponseEntity.ok(availableSpaces);
     }
+
+    //retorna somente vagas ocupadas
+    // Retorna vagas ocupadas
+    @GetMapping("/occupied")
+    public ResponseEntity<List<ParkingSpace>> getOccupiedParkingSpaces() {
+        List<ParkingSpace> occupiedSpaces = parkingSpacesService.getOccupiedParkingSpaces();
+        return ResponseEntity.ok(occupiedSpaces);
+    }
+
 
 
 

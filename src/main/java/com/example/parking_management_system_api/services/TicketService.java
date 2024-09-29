@@ -35,6 +35,7 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final VehicleRepository vehicleRepository;
     private final ParkingSpaceService parkingSpaceService;
+    private final ParkingSpaceRepository parkingSpaceRepository;
 
     @Transactional
     public TicketResponseDto saveCheckIn(TicketCreateDto dto) {
@@ -47,7 +48,7 @@ public class TicketService {
                throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
            }
         if (dto.getCategory() == VehicleCategoryEnum.MONTHLY_PAYER) { //mudar isso para se acabar as vagas de mensalista
-            if (!vehicle.getRegistered())
+            if (!vehicle.getRegistered())// nao entendi essas duas logicas
                 vehicle.setCategory(VehicleCategoryEnum.SEPARATED);
         }
         Ticket ticket = TicketMapper.toTicket(dto);
@@ -93,6 +94,7 @@ public class TicketService {
         return TicketMapper.toDto(ticket);
     }
 
+
     private List<ParkingSpace> allocatedSpaces(Vehicle vehicle) {
         int requiredSpaces = vehicle.getAccessType().getSlotSize();
         List<ParkingSpace> availableSpaces = parkingSpaceService.getAvailableParkingSpaces();
@@ -103,6 +105,12 @@ public class TicketService {
             if (previousSpace == null || currentSpace.getNumber() == previousSpace.getNumber() + 1) {
                 consecutiveSpaces.add(currentSpace);
                 if (consecutiveSpaces.size() == requiredSpaces) {
+                    // Atualiza o status das vagas alocadas antes de retornar
+                    for (ParkingSpace space : consecutiveSpaces) {
+                        space.setOccupied(true);
+                        space.setVehicle(vehicle);// ou o status apropriado que você usa
+                        parkingSpaceService.updateParkingSpace(space); // método para atualizar no banco de dados
+                    }
                     return consecutiveSpaces;
                 }
             } else {
@@ -111,8 +119,13 @@ public class TicketService {
             }
             previousSpace = currentSpace;
         }
-        return null;
+
+        return new ArrayList<>(); // Retorna uma lista vazia se não encontrar espaços suficientes
     }
+
+
+
+
 
     public double calculateTotalValue(LocalTime startHour, LocalTime finishHour, Vehicle vehicle) {
         double total = 0;

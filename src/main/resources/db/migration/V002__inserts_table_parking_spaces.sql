@@ -7,7 +7,6 @@ INSERT INTO vehicles (license_plate, category, access_type, registered) VALUES
 INSERT INTO parking_spaces (number, isOccupied, slotType, vehicles_id) VALUES
                                                                            (1, false, 'MONTHLY', NULL),
                                                                            (2, false, 'MONTHLY', NULL),
-                                                                           (3, false, 'MONTHLY', NULL),
                                                                            (4, false, 'MONTHLY', NULL),
                                                                            (5, false, 'MONTHLY', NULL),
                                                                            (6, false, 'MONTHLY', NULL),

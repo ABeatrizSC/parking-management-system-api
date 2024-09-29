@@ -6,7 +6,7 @@ spring:
     driverClassName: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/parking_system_db?createDatabaseIfNotExist=true&serverTimezone=UTC
     username: root
-    password: root
+    password: root123
 
   flyway:
     enabled: true
