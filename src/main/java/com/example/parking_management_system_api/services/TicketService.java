@@ -58,10 +58,6 @@ public class TicketService {
             else
                 throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
         }
-        if (vehicle.getCategory() == MONTHLY_PAYER) { //mudar isso para se acabar as vagas de mensalista
-            if (!vehicle.getRegistered())
-                vehicle.setCategory(VehicleCategoryEnum.SEPARATED);
-        }
         Ticket ticket = TicketMapper.toTicket(dto);
         ticket.setVehicle(vehicle);
         ticket.setStartHour(LocalDateTime.now().format(formatter));
@@ -71,7 +67,6 @@ public class TicketService {
                .map(ParkingSpace::toString)
                .collect(Collectors.joining(", "));
         ticket.setParkingSpaces(spaces);
-
         ticketRepository.save(ticket);
         return TicketMapper.toDto(ticket);
     }

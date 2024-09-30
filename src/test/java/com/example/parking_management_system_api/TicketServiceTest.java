@@ -1,22 +1,29 @@
 package com.example.parking_management_system_api;
 
+import com.example.parking_management_system_api.entities.ParkingSpace;
+import com.example.parking_management_system_api.entities.Ticket;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
+import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
 import com.example.parking_management_system_api.repositories.TicketRepository;
+import com.example.parking_management_system_api.repositories.VehicleRepository;
 import com.example.parking_management_system_api.services.TicketService;
 import com.example.parking_management_system_api.web.dto.TicketResponseDto;
+import com.example.parking_management_system_api.web.dto.mapper.TicketMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static com.example.parking_management_system_api.TicketConstraints.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TicketServiceTest {
@@ -25,6 +32,10 @@ public class TicketServiceTest {
     private TicketService ticketService;
     @Mock
     private TicketRepository ticketRepository;
+    @Mock
+    private VehicleRepository vehicleRepository;
+    @Mock
+    private ParkingSpaceRepository parkingSpaceRepository;
 
     @Test
     public void getTicket_ByExistingId_ReturnsTicket() {
@@ -39,31 +50,44 @@ public class TicketServiceTest {
     }
 
     @Test
-    public void getTicket_ByUnexistingId_ReturnsError404() {
+    public void getTicket_ByUnexistingId_ThrowsException() {
         doThrow(new EntityNotFoundException("")).when(ticketRepository).findById(99L);
         assertThatThrownBy(() -> ticketService.findById(99L)).isInstanceOf(EntityNotFoundException.class);
     }
 
-//    @Test
-//    public void getAllTickets_ReturnsTickets() {
-//        List<Ticket> tickets = new ArrayList<>() {
-//            {
-//                add(TICKET2);
-//            }
-//        };
-//        Ticket ticketExample = new Ticket(2L, TICKET2.getStartHour(), TICKET2.getFinishHour(), TICKET2.getTotalValue(),
-//                TICKET2.getParked(), TICKET2.getEntranceGate(), TICKET2.getExitGate(), TICKET2.getParkingSpaces(), TICKET2.getVehicle());
-//        ExampleMatcher matcher = ExampleMatcher.matching()
-//                .withIgnoreNullValues()
-//                .withIgnorePaths("id");
-//        Example<Ticket> example = Example.of(ticketExample, matcher);
-//        when(ticketRepository.findAll(example)).thenReturn(tickets);
-//        List<TicketResponseDto> dtos = ticketService.searchAll();
-//        List<Ticket> sut = TicketMapper.toListTicket(dtos);
-//        assertThat(sut).isNotEmpty();
-//        assertThat(sut).hasSize(1);
-//        assertThat(sut.get(0)).isEqualTo(TICKET2);
-//    }
+    @Test
+    void getAllTickets_ReturnsTickets() {
+        List<Ticket> expectedTickets = Arrays.asList(TICKET2, TICKET3);
+        when(ticketRepository.findAll()).thenReturn(expectedTickets);
+        List<TicketResponseDto> resultDto = ticketService.searchAll();
+        List<Ticket> result = TicketMapper.toListTicket(resultDto);
+        assertEquals(expectedTickets.size(), result.size());
+        assertEquals(expectedTickets, result);
+    }
 
-    //falta checkin, checkout, error400 checkin, error409 checkin, error 404 checkout
+    @Test
+    public void saveCheckOut_WithExistingTicketId_ReturnsTicket() {
+        when(ticketRepository.findById(5L)).thenReturn(Optional.of(TICKET5));
+        when(vehicleRepository.findById(TICKET5.getVehicle().getId())).thenReturn(Optional.of(VEHICLE3));
+        when(parkingSpaceRepository.findByNumber(any(Integer.class)))
+                .thenReturn(SPACE1)
+                .thenReturn(SPACE2)
+                .thenReturn(SPACE3)
+                .thenReturn(SPACE4);
+        TicketResponseDto sut = ticketService.saveCheckOut(5L);
+        assertThat(sut).isNotNull();
+        assertThat(sut.getExitGate()).isEqualTo(10);
+        assertThat(sut.getId()).isEqualTo(5L);
+        assertThat(sut.getVehicle()).isEqualTo(VEHICLE3);
+        assertThat(sut.getParked()).isFalse();
+        verify(ticketRepository).save(any(Ticket.class));
+    }
+
+    @Test
+    public void saveCheckOut_WithUnexistingTicketId_ThrowsException() {
+        doThrow(new EntityNotFoundException("")).when(ticketRepository).findById(99L);
+        assertThatThrownBy(() -> ticketService.saveCheckOut(99L)).isInstanceOf(EntityNotFoundException.class);
+    }
+
+    //falta checkin, error400 checkin, error409 checkin
 }
