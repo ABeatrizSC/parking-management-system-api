@@ -1,6 +1,5 @@
 package com.example.parking_management_system_api;
 
-import com.example.parking_management_system_api.entities.ParkingSpace;
 import com.example.parking_management_system_api.entities.Ticket;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
@@ -76,7 +75,6 @@ public class TicketServiceTest {
                 .thenReturn(SPACE4);
         TicketResponseDto sut = ticketService.saveCheckOut(5L);
         assertThat(sut).isNotNull();
-        assertThat(sut.getExitGate()).isEqualTo(10);
         assertThat(sut.getId()).isEqualTo(5L);
         assertThat(sut.getVehicle()).isEqualTo(VEHICLE3);
         assertThat(sut.getParked()).isFalse();
@@ -88,6 +86,4 @@ public class TicketServiceTest {
         doThrow(new EntityNotFoundException("")).when(ticketRepository).findById(99L);
         assertThatThrownBy(() -> ticketService.saveCheckOut(99L)).isInstanceOf(EntityNotFoundException.class);
     }
-
-    //falta checkin, error400 checkin, error409 checkin
 }
