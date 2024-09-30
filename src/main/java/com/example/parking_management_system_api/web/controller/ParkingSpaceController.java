@@ -1,7 +1,11 @@
 package com.example.parking_management_system_api.web.controller;
 
 import com.example.parking_management_system_api.entities.ParkingSpace;
+import com.example.parking_management_system_api.entities.Vehicle;
+import com.example.parking_management_system_api.models.SlotTypeEnum;
 import com.example.parking_management_system_api.services.ParkingSpaceService;
+import com.example.parking_management_system_api.web.dto.VehicleResponseDto;
+import com.example.parking_management_system_api.web.dto.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +34,12 @@ public class ParkingSpaceController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{number}")
+    public ResponseEntity<ParkingSpace> getParkingSpaceByNumber(@PathVariable Integer number) {
+        ParkingSpace parkingSpace = parkingSpacesService.findParkingSpaceByNumber(number);
+        return ResponseEntity.ok(parkingSpace);
+    }
+
     @GetMapping
     public ResponseEntity<List<ParkingSpace>> getAllParkingSpaces() {
         List<ParkingSpace> allSpaces = parkingSpacesService.getAllParkingSpaces();
@@ -38,7 +48,7 @@ public class ParkingSpaceController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ParkingSpace> updateParkingSpace(@PathVariable Long id, @RequestBody ParkingSpace parkingSpaces) {
-        parkingSpaces.setId(id); // Assumindo que você quer atualizar pelo ID
+        parkingSpaces.setId(id);
         ParkingSpace updatedSpace = parkingSpacesService.updateParkingSpace(parkingSpaces);
         return ResponseEntity.ok(updatedSpace);
     }
@@ -57,6 +67,9 @@ public class ParkingSpaceController {
         return ResponseEntity.ok(availableSpaces);
     }
 
-
-
+    @GetMapping("/slotType={slotType}")
+    public ResponseEntity<List<ParkingSpace>> getBySlotType(@PathVariable SlotTypeEnum slotType) {
+        List<ParkingSpace> parkingSpaces = parkingSpacesService.findAllBySlotType(slotType);
+        return ResponseEntity.ok(parkingSpaces);
+    }
 }
