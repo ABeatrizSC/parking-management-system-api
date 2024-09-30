@@ -16,5 +16,7 @@ SELECT @rownum := @rownum + 1 AS seq, false, 'CASUAL', NULL
 FROM information_schema.tables
 LIMIT 300;
 INSERT INTO tickets (start_hour, finish_hour, total_value, parked, entrance_gate, exit_gate, parking_spaces, vehicles_id) VALUES
-('30/09/2024 14:26:12', NULL, NULL, FALSE, 2, NULL, "201, 202", 1);
+('30/09/2024 14:26:12', NULL, NULL, TRUE, 2, NULL, "201, 202", 1);
+UPDATE parking_spaces SET is_occupied=TRUE WHERE id=256;
+UPDATE parking_spaces SET is_occupied=TRUE WHERE id=257;
 
