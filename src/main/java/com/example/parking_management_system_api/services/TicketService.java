@@ -5,8 +5,8 @@ import com.example.parking_management_system_api.entities.Ticket;
 import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.exception.IllegalStateException;
-import com.example.parking_management_system_api.exception.InvalidPlateException;
-import com.example.parking_management_system_api.models.SlotTypeEnum;
+import com.example.parking_management_system_api.exception.InvalidFieldException;
+import com.example.parking_management_system_api.exception.VehicleNotFoundException;
 import com.example.parking_management_system_api.models.VehicleCategoryEnum;
 import com.example.parking_management_system_api.models.VehicleTypeEnum;
 import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
@@ -21,12 +21,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+
+import static com.example.parking_management_system_api.models.SlotTypeEnum.CASUAL;
+import static com.example.parking_management_system_api.models.VehicleCategoryEnum.MONTHLY_PAYER;
 
 
 @Service
@@ -39,25 +44,27 @@ public class TicketService {
     private final ParkingSpaceService parkingSpaceService;
     private final ParkingSpaceRepository parkingSpaceRepository;
 
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
     @Transactional
     public TicketResponseDto saveCheckIn(TicketCreateDto dto) {
         Vehicle vehicle = vehicleRepository.findByLicensePlate(dto.getLicensePlate())
-                .orElseThrow(() -> new InvalidPlateException("Wrong plate"));
+                .orElseThrow(() -> new InvalidFieldException());
         List<ParkingSpace> allocatedSpaces = allocatedSpaces(vehicle);
-            if (allocatedSpaces.isEmpty()) {
-                if (vehicle.getAccessType() == VehicleTypeEnum.PUBLIC_SERVICE) {
-                    allocatedSpaces = new ArrayList<>();
-                }
-                else
-                    throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
+        if (allocatedSpaces.isEmpty()) {
+            if (vehicle.getAccessType() == VehicleTypeEnum.PUBLIC_SERVICE) {
+                allocatedSpaces = new ArrayList<>();
             }
-        if (dto.getCategory() == VehicleCategoryEnum.MONTHLY_PAYER) { //mudar isso para se acabar as vagas de mensalista
+            else
+                throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
+        }
+        if (vehicle.getCategory() == MONTHLY_PAYER) { //mudar isso para se acabar as vagas de mensalista
             if (!vehicle.getRegistered())
                 vehicle.setCategory(VehicleCategoryEnum.SEPARATED);
         }
         Ticket ticket = TicketMapper.toTicket(dto);
         ticket.setVehicle(vehicle);
-        ticket.setStartHour(LocalTime.now());
+        ticket.setStartHour(LocalDateTime.now().format(formatter));
         ticket.setParked(true);
         ticket.setEntranceGate(setEntranceGate(vehicle));
         String spaces = allocatedSpaces.stream()
@@ -76,9 +83,16 @@ public class TicketService {
         Vehicle vehicle = vehicleRepository.findById(ticket.getVehicle().getId())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Vehicle id=%s not found", ticket.getVehicle().getId())));
         ticket.setParked(false);
-        ticket.setFinishHour(LocalTime.now());
+        ticket.setFinishHour(LocalDateTime.now().format(formatter));
         ticket.setExitGate(setExitGate(vehicle));
-        ticket.setTotalValue(calculateTotalValue(ticket.getStartHour(), LocalTime.now(), vehicle));
+        ticket.setTotalValue(calculateTotalValue(ticket.getStartHour(), ticket.getFinishHour(), vehicle));
+        String[] parkingSpaces = ticket.getParkingSpaces().split(", ");
+        for (String parkingSpaceNumber : parkingSpaces) {
+            ParkingSpace parkingSpace = parkingSpaceRepository.findByNumber(Integer.valueOf(parkingSpaceNumber.trim()));
+            parkingSpace.setOccupied(false);
+            parkingSpace.setVehicle(null);
+            parkingSpaceRepository.save(parkingSpace);
+        }
         ticketRepository.save(ticket);
         return TicketMapper.toDto(ticket);
     }
@@ -98,7 +112,14 @@ public class TicketService {
 
     private List<ParkingSpace> allocatedSpaces(Vehicle vehicle) {
         int requiredSpaces = vehicle.getAccessType().getSlotSize();
-        List<ParkingSpace> availableSpaces = parkingSpaceService.getAvailableParkingSpaces();
+        List<ParkingSpace> availableSpaces = new ArrayList<>();
+
+        if (vehicle.getCategory() == MONTHLY_PAYER) {
+            availableSpaces.addAll(parkingSpaceService.getAllParkingSpaces());
+        } else {
+            availableSpaces.addAll(parkingSpaceService.findAllBySlotType(CASUAL));
+        }
+
         List<ParkingSpace> consecutiveSpaces = new ArrayList<>();
         ParkingSpace previousSpace = null;
 
@@ -122,11 +143,11 @@ public class TicketService {
         return new ArrayList<>();
     }
 
-    public double calculateTotalValue(LocalTime startHour, LocalTime finishHour, Vehicle vehicle) {
+    public double calculateTotalValue(String startHour, String finishHour, Vehicle vehicle) {
         double total = 0;
-        if (vehicle.getCategory() == VehicleCategoryEnum.MONTHLY_PAYER|| vehicle.getCategory() == VehicleCategoryEnum.PUBLIC_SERVICE)
+        if (vehicle.getCategory() == MONTHLY_PAYER|| vehicle.getCategory() == VehicleCategoryEnum.PUBLIC_SERVICE)
             return total;
-        Duration duration = Duration.between(startHour, finishHour);
+        Duration duration = Duration.between(LocalDateTime.parse(startHour, formatter), LocalDateTime.parse(finishHour, formatter));
         long minutesParked = duration.toMinutes();
         int slotsOccupied = vehicle.getAccessType().getSlotSize();
         double PRICE_PER_MINUTE = 0.10;

@@ -1,16 +1,14 @@
 package com.example.parking_management_system_api.web.controller;
 import com.example.parking_management_system_api.entities.Vehicle;
-import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.exception.InvalidFieldException;
-import com.example.parking_management_system_api.exception.InvalidVehicleCategoryAndTypeException;
 import com.example.parking_management_system_api.services.VehicleService;
-import com.example.parking_management_system_api.web.dto.TicketResponseDto;
 import com.example.parking_management_system_api.web.dto.VehicleCreateDto;
 import com.example.parking_management_system_api.web.dto.VehicleResponseDto;
 import com.example.parking_management_system_api.web.dto.mapper.VehicleMapper;
 import com.example.parking_management_system_api.web.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,9 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
-
-import static com.example.parking_management_system_api.models.VehicleCategoryEnum.MONTHLY_PAYER;
-import static com.example.parking_management_system_api.web.dto.mapper.VehicleMapper.toVehicle;
 
 @Tag(name = "Vehicles", description = "This section contains the endpoints for vehicle management, such as" +
         " creation, deletion and searching.")
@@ -38,7 +33,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "201", description = "Vehicle created successfully.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Type incompatibility or invalid values.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)
+                            , examples = @ExampleObject(value = "{ \"error\": \"Invalid fields.\" }")))
     })
     @PostMapping
     public ResponseEntity<VehicleResponseDto> create(@RequestBody VehicleCreateDto dto){
@@ -66,7 +62,8 @@ public class VehicleController {
                     @ApiResponse(responseCode = "200", description = "Vehicle listed.",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
                     @ApiResponse(responseCode = "404", description = "Vehicle not found.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)
+                                    , examples = @ExampleObject(value = "{ \"error\": \"Vehicle not found.\" }")))
             })
     @GetMapping("/{id}")
     public ResponseEntity<Vehicle> getById(@PathVariable Long id) {
@@ -80,7 +77,8 @@ public class VehicleController {
                     @ApiResponse(responseCode = "200", description = "Vehicle listed.",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
                     @ApiResponse(responseCode = "404", description = "Vehicle not found.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)
+                                    , examples = @ExampleObject(value = "{ \"error\": \"Vehicle not found.\" }")))
             })
     @GetMapping("/licensePlate={licensePlate}")
     public ResponseEntity<VehicleResponseDto> getByLicensePlate(@PathVariable String licensePlate) {
@@ -92,11 +90,13 @@ public class VehicleController {
             " using ID as the parameter.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "No content, update successful.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
+                            content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "404", description = "Vehicle not found.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)
+                                    , examples = @ExampleObject(value = "{ \"error\": \"Vehicle not found.\" }"))),
                     @ApiResponse(responseCode = "400", description = "Type incompatibility or invalid values.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = InvalidFieldException.class)
+                                    , examples = @ExampleObject(value = "{ \"error\": \"Invalid fields.\" }")))
             })
     @PatchMapping("/{id}")
     public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody VehicleCreateDto vehicle){
@@ -108,9 +108,10 @@ public class VehicleController {
             " using ID as the parameter.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "No content, update successful.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = VehicleResponseDto.class))),
+                            content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "404", description = "Vehicle not found.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)
+                                    , examples = @ExampleObject(value = "{ \"error\": \"Vehicle not found.\" }")))
             })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete (@PathVariable Long id){
