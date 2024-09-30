@@ -1,6 +1,6 @@
 package com.example.parking_management_system_api;
 
-import com.example.parking_management_system_api.entities.Ticket;
+import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.repositories.TicketRepository;
 import com.example.parking_management_system_api.services.TicketService;
 import com.example.parking_management_system_api.web.dto.TicketResponseDto;
@@ -9,18 +9,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Sort;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static com.example.parking_management_system_api.TicketConstraints.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,38 +26,44 @@ public class TicketServiceTest {
     @Mock
     private TicketRepository ticketRepository;
 
-//    @Test
-//    public void getTicket_ByExistingId_ReturnsTicket() {
-//        when(ticketRepository.findById(TICKET.getId())).thenReturn(Optional.of(TICKET));
-//        Optional<Ticket> sut = ticketService.findById(TICKET.getId());
-//        assertThat(sut).isNotEmpty();
-//        assertThat(sut.get()).isEqualTo(TICKET);
-//    }
+    @Test
+    public void getTicket_ByExistingId_ReturnsTicket() {
+        when(ticketRepository.findById(2L)).thenReturn(Optional.of(TICKET2));
+        TicketResponseDto sut = ticketService.findById(2L);
+        assertThat(sut).isNotNull();
+        assertThat(sut.getEntranceGate()).isEqualTo(5);
+        assertThat(sut.getId()).isEqualTo(2L);
+        assertThat(sut.getParked()).isTrue();
+        assertThat(sut.getVehicle()).isEqualTo(VEHICLE12);
+        assertThat(sut.getParkingSpaces()).isEqualTo("201");
+    }
+
+    @Test
+    public void getTicket_ByUnexistingId_ReturnsError404() {
+        doThrow(new EntityNotFoundException("")).when(ticketRepository).findById(99L);
+        assertThatThrownBy(() -> ticketService.findById(99L)).isInstanceOf(EntityNotFoundException.class);
+    }
 
 //    @Test
-//    public void getTicket_ByExistingId_ReturnsTicket() {
-//        when(ticketRepository.findById(TICKET.getId())).thenReturn(TICKET);
-//        TicketResponseDto responseDto = ticketService.findById(TICKET.getId());
-//        assertThat(responseDto).isEqualTo(TICKET);
-//    }
-
-//    @Test
-//    public void getAllTickets_ReturnTickets() {
+//    public void getAllTickets_ReturnsTickets() {
 //        List<Ticket> tickets = new ArrayList<>() {
 //            {
 //                add(TICKET2);
 //            }
 //        };
-//        Ticket exampleTicket = new Ticket(1L, TICKET2.getStartHour(), TICKET2.getFinishHour(), TICKET.getTotalValue(),
+//        Ticket ticketExample = new Ticket(2L, TICKET2.getStartHour(), TICKET2.getFinishHour(), TICKET2.getTotalValue(),
 //                TICKET2.getParked(), TICKET2.getEntranceGate(), TICKET2.getExitGate(), TICKET2.getParkingSpaces(), TICKET2.getVehicle());
 //        ExampleMatcher matcher = ExampleMatcher.matching()
 //                .withIgnoreNullValues()
 //                .withIgnorePaths("id");
-//        Example<Ticket> example = Example.of(exampleTicket, matcher);
+//        Example<Ticket> example = Example.of(ticketExample, matcher);
 //        when(ticketRepository.findAll(example)).thenReturn(tickets);
-//        List<TicketResponseDto> sut = ticketService.searchAll();
+//        List<TicketResponseDto> dtos = ticketService.searchAll();
+//        List<Ticket> sut = TicketMapper.toListTicket(dtos);
 //        assertThat(sut).isNotEmpty();
 //        assertThat(sut).hasSize(1);
-//        assertThat(sut.get(0)).isEqualTo(TICKET);
+//        assertThat(sut.get(0)).isEqualTo(TICKET2);
 //    }
+
+    //falta checkin, checkout, error400 checkin, error409 checkin, error 404 checkout
 }

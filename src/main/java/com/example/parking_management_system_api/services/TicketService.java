@@ -119,6 +119,7 @@ public class TicketService {
         } else {
             availableSpaces.addAll(parkingSpaceService.findAllBySlotType(CASUAL));
         }
+        availableSpaces = availableSpaces.stream().filter(parkingSpace -> !parkingSpace.isOccupied()).toList();
 
         List<ParkingSpace> consecutiveSpaces = new ArrayList<>();
         ParkingSpace previousSpace = null;
