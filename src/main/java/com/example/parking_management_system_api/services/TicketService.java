@@ -164,6 +164,6 @@ public class TicketService {
     }
 
     private Integer setExitGate(Vehicle vehicle) {
-        return vehicle.getAccessType() == VehicleTypeEnum.MOTORCYCLE? 10 : ThreadLocalRandom.current().nextInt(6, 10);
+        return vehicle.getAccessType() == VehicleTypeEnum.MOTORCYCLE? 10 : ThreadLocalRandom.current().nextInt(6, 11);
     }
 }
