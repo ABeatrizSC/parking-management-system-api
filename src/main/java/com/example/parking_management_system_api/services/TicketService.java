@@ -6,7 +6,6 @@ import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
 import com.example.parking_management_system_api.exception.IllegalStateException;
 import com.example.parking_management_system_api.exception.InvalidFieldException;
-import com.example.parking_management_system_api.exception.VehicleNotFoundException;
 import com.example.parking_management_system_api.models.VehicleCategoryEnum;
 import com.example.parking_management_system_api.models.VehicleTypeEnum;
 import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
@@ -21,9 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,10 +55,6 @@ public class TicketService {
             else
                 throw new IllegalStateException(String.format("No free spaces for %s", vehicle.getAccessType()));
         }
-        if (vehicle.getCategory() == MONTHLY_PAYER) { //mudar isso para se acabar as vagas de mensalista
-            if (!vehicle.getRegistered())
-                vehicle.setCategory(VehicleCategoryEnum.SEPARATED);
-        }
         Ticket ticket = TicketMapper.toTicket(dto);
         ticket.setVehicle(vehicle);
         ticket.setStartHour(LocalDateTime.now().format(formatter));
@@ -71,9 +64,8 @@ public class TicketService {
                .map(ParkingSpace::toString)
                .collect(Collectors.joining(", "));
         ticket.setParkingSpaces(spaces);
-
         ticketRepository.save(ticket);
-        return TicketMapper.toDto(ticket);
+        return TicketMapper.toResponseDto(ticket);
     }
 
     @Transactional
@@ -94,7 +86,7 @@ public class TicketService {
             parkingSpaceRepository.save(parkingSpace);
         }
         ticketRepository.save(ticket);
-        return TicketMapper.toDto(ticket);
+        return TicketMapper.toResponseDto(ticket);
     }
 
     @Transactional
@@ -107,10 +99,10 @@ public class TicketService {
     public TicketResponseDto findById(Long id) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Ticket id=%s not found", id)));
-        return TicketMapper.toDto(ticket);
+        return TicketMapper.toResponseDto(ticket);
     }
 
-    private List<ParkingSpace> allocatedSpaces(Vehicle vehicle) {
+    public List<ParkingSpace> allocatedSpaces(Vehicle vehicle) {
         int requiredSpaces = vehicle.getAccessType().getSlotSize();
         List<ParkingSpace> availableSpaces = new ArrayList<>();
 
@@ -169,6 +161,6 @@ public class TicketService {
     }
 
     private Integer setExitGate(Vehicle vehicle) {
-        return vehicle.getAccessType() == VehicleTypeEnum.MOTORCYCLE? 10 : ThreadLocalRandom.current().nextInt(1, 6);
+        return vehicle.getAccessType() == VehicleTypeEnum.MOTORCYCLE? 10 : ThreadLocalRandom.current().nextInt(6, 11);
     }
 }
