@@ -9,9 +9,14 @@ import com.example.parking_management_system_api.models.VehicleTypeEnum;
 import com.example.parking_management_system_api.web.dto.TicketCreateDto;
 import com.example.parking_management_system_api.web.dto.TicketResponseDto;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class TicketConstraints {
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private static String getFormattedNow() {
+        return LocalDateTime.now().format(formatter);
+    }
 
     //VEHICLES
     public static final Vehicle VEHICLE1 = new Vehicle(1L, "ABC-1234", VehicleCategoryEnum.SEPARATED, VehicleTypeEnum.PASSENGER_CAR, false);
@@ -22,20 +27,20 @@ public class TicketConstraints {
     public static final Vehicle VEHICLE4 = new Vehicle(6L, "ABC-1239", VehicleCategoryEnum.PUBLIC_SERVICE, VehicleTypeEnum.PUBLIC_SERVICE, false);
 
     //TICKETCREATEDTO
-    public static final TicketCreateDto DTO = new TicketCreateDto("ABC-1234", VehicleCategoryEnum.MONTHLY_PAYER);
-    public static final TicketCreateDto DTO1 = new TicketCreateDto("ABC-1236", VehicleCategoryEnum.MONTHLY_PAYER);
-    public static final TicketCreateDto DTO2 = new TicketCreateDto("ABC-1235", VehicleCategoryEnum.SEPARATED);
-    public static final TicketCreateDto DTO3 = new TicketCreateDto("ABC-1237", VehicleCategoryEnum.SEPARATED);
-    public static final TicketCreateDto DTO4 = new TicketCreateDto("ABC-1238", VehicleCategoryEnum.DELIVERY_TRUCK);
-    public static final TicketCreateDto DTO5 = new TicketCreateDto("ABC-1239", VehicleCategoryEnum.PUBLIC_SERVICE);
+    public static final TicketCreateDto DTO = new TicketCreateDto("ABC-1234", VehicleTypeEnum.PASSENGER_CAR);
+    public static final TicketCreateDto DTO1 = new TicketCreateDto("ABC-1236", VehicleTypeEnum.PASSENGER_CAR);
+    public static final TicketCreateDto DTO2 = new TicketCreateDto("ABC-1235", VehicleTypeEnum.MOTORCYCLE);
+    public static final TicketCreateDto DTO3 = new TicketCreateDto("ABC-1237", VehicleTypeEnum.MOTORCYCLE);
+    public static final TicketCreateDto DTO4 = new TicketCreateDto("ABC-1238", VehicleTypeEnum.DELIVERY_TRUCK);
+    public static final TicketCreateDto DTO5 = new TicketCreateDto("ABC-1239", VehicleTypeEnum.PUBLIC_SERVICE);
 
     //TICKETS
-    public static final TicketResponseDto TICKET = new TicketResponseDto(1L, VEHICLE1, true, LocalTime.now(), LocalTime.now(), 1, 10, 5.00, "201, 202");
-    public static final Ticket TICKET2 = new Ticket(2L, LocalTime.now(), LocalTime.now(), 5.00, true, 5, 10, "201", VEHICLE12);
-    public static final Ticket TICKET3 = new Ticket(3L, LocalTime.now(), LocalTime.now(), 0.00, true, 1, 10, "1, 2", VEHICLE2);
-    public static final Ticket TICKET4 = new Ticket(4L, LocalTime.now(), LocalTime.now(), 0.00, true, 5, 10, "1", VEHICLE22);
-    public static final Ticket TICKET5 = new Ticket(5L, LocalTime.now(), LocalTime.now(), 5.00, true, 1, 10, "201, 202, 203, 204", VEHICLE3);
-    public static final Ticket TICKET6 = new Ticket(6L, LocalTime.now(), LocalTime.now(), 5.00, true, 1, 10, "", VEHICLE4);
+    public static final TicketResponseDto TICKET = new TicketResponseDto(1L, VEHICLE1, true, getFormattedNow(), getFormattedNow(), 1, 10, 5.00, "201, 202");
+    public static final Ticket TICKET2 = new Ticket(2L, getFormattedNow(), getFormattedNow(), 5.00, true, 5, 10, "201", VEHICLE12);
+    public static final Ticket TICKET3 = new Ticket(3L, getFormattedNow(), getFormattedNow(), 0.00, true, 1, 10, "1, 2", VEHICLE2);
+    public static final Ticket TICKET4 = new Ticket(4L, getFormattedNow(), getFormattedNow(), 0.00, true, 5, 10, "1", VEHICLE22);
+    public static final Ticket TICKET5 = new Ticket(5L, getFormattedNow(), getFormattedNow(), 5.00, true, 1, 10, "201, 202, 203, 204", VEHICLE3);
+    public static final Ticket TICKET6 = new Ticket(6L, getFormattedNow(), getFormattedNow(), 5.00, true, 1, 10, "", VEHICLE4);
 
     //SPACES
     public static final ParkingSpace SPACE1 = new ParkingSpace(1L, 201, false, SlotTypeEnum.CASUAL, null);
