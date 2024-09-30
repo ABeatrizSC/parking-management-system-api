@@ -1,7 +1,10 @@
 package com.example.parking_management_system_api.web.controller;
 
 import com.example.parking_management_system_api.entities.ParkingSpace;
+import com.example.parking_management_system_api.models.SlotTypeEnum;
+import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
 import com.example.parking_management_system_api.services.ParkingSpaceService;
+import com.example.parking_management_system_api.web.dto.AvailableSlotsResponse;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,10 @@ import java.util.Optional;
 public class ParkingSpaceController {
 
     private final ParkingSpaceService parkingSpacesService;
+    private final ParkingSpaceRepository parkingSpaceRepository;
+
+
+
 
     @PostMapping
     public ResponseEntity<ParkingSpace> createParkingSpace(@RequestBody ParkingSpace parkingSpaces) {
@@ -57,6 +64,15 @@ public class ParkingSpaceController {
         return ResponseEntity.ok(availableSpaces);
     }
 
-
+    @GetMapping("/available-slots/{slotType}")
+    public AvailableSlotsResponse getAvailableSlots(@PathVariable SlotTypeEnum slotType) {
+        int availableCount = parkingSpacesService.getAvailableSlots(slotType).size();
+        return new AvailableSlotsResponse(slotType.name(), availableCount); // Retorna o DTO
+    }
 
 }
+
+
+
+
+

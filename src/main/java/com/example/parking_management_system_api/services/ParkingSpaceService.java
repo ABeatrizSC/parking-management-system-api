@@ -2,6 +2,7 @@ package com.example.parking_management_system_api.services;
 
 import com.example.parking_management_system_api.entities.ParkingSpace;
 import com.example.parking_management_system_api.entities.Vehicle;
+import com.example.parking_management_system_api.models.SlotTypeEnum;
 import com.example.parking_management_system_api.models.VehicleCategoryEnum;
 import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
@@ -21,8 +22,9 @@ import java.util.Optional;
 public class ParkingSpaceService {
 
     private final ParkingSpaceRepository parkingSpacesRepository;
-    private final VehicleService vehicleService;
-    private final VehicleRepository vehicleRepository;
+
+
+
 
     public ParkingSpace createParkingSpace(ParkingSpace parkingSpaces) {
         return parkingSpacesRepository.save(parkingSpaces);
@@ -57,6 +59,19 @@ public class ParkingSpaceService {
 
     }
 
+    //public int countOccupiedMonthlySpaces() {
+      //  return parkingSpacesRepository.countBySlotTypeAndIsOccupied(SlotTypeEnum.MONTHLY);
+    //}
+
+
+
+    //public long countAvailableMonthlySpaces() {
+      //  return parkingSpacesRepository.countBySlotTypeAndIsOccupied("MONTHLY", false);
+    //}
+
+    public List<ParkingSpace> getAvailableSlots(SlotTypeEnum slotType) {
+        return parkingSpacesRepository.findAvailableSlotsBySlotType(slotType);
+    }
 
 
 
