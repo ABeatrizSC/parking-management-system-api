@@ -18,10 +18,8 @@ public class TicketResponseDto{
     private Long id;
     private Vehicle vehicle;
     private Boolean parked;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    private LocalTime startHour;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    private LocalTime finishHour;
+    private String startHour;
+    private String finishHour;
     private Integer entranceGate;
     private Integer exitGate;
     private Double totalValue;

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
@@ -23,9 +24,9 @@ public class Ticket implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "start_hour", nullable = false)
-    private LocalTime startHour;
+    private String startHour;
     @Column(name = "finish_hour")
-    private LocalTime finishHour;
+    private String finishHour;
     @Column(name = "total_value")
     private Double totalValue;
     @Column(name = "parked")
