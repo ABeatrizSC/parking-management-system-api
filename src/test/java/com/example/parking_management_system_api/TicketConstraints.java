@@ -21,8 +21,8 @@ public class TicketConstraints {
     //VEHICLES
     public static final Vehicle VEHICLE1 = new Vehicle(1L, "ABC-1234", VehicleCategoryEnum.SEPARATED, VehicleTypeEnum.PASSENGER_CAR, false);
     public static final Vehicle VEHICLE12 = new Vehicle(2L, "ABC-1235", VehicleCategoryEnum.SEPARATED, VehicleTypeEnum.MOTORCYCLE, false);
-    public static final Vehicle VEHICLE2 = new Vehicle(3L, "ABC-1236", VehicleCategoryEnum.MONTHLY_PAYER, VehicleTypeEnum.PASSENGER_CAR, Boolean.TRUE);
-    public static final Vehicle VEHICLE22 = new Vehicle(4L, "ABC-1237", VehicleCategoryEnum.MONTHLY_PAYER, VehicleTypeEnum.MOTORCYCLE, Boolean.TRUE);
+    public static final Vehicle VEHICLE2 = new Vehicle(3L, "ABC-1236", VehicleCategoryEnum.MONTHLY_PAYER, VehicleTypeEnum.PASSENGER_CAR, true);
+    public static final Vehicle VEHICLE22 = new Vehicle(4L, "ABC-1237", VehicleCategoryEnum.MONTHLY_PAYER, VehicleTypeEnum.MOTORCYCLE, true);
     public static final Vehicle VEHICLE3 = new Vehicle(5L, "ABC-1238", VehicleCategoryEnum.DELIVERY_TRUCK, VehicleTypeEnum.DELIVERY_TRUCK, false);
     public static final Vehicle VEHICLE4 = new Vehicle(6L, "ABC-1239", VehicleCategoryEnum.PUBLIC_SERVICE, VehicleTypeEnum.PUBLIC_SERVICE, false);
 
@@ -48,8 +48,8 @@ public class TicketConstraints {
     public static final ParkingSpace SPACE3 = new ParkingSpace(3L, 203, false, SlotTypeEnum.CASUAL, null);
     public static final ParkingSpace SPACE4 = new ParkingSpace(4L, 204, false, SlotTypeEnum.CASUAL, null);
     public static final ParkingSpace SPACE5 = new ParkingSpace(5L, 205, false, SlotTypeEnum.CASUAL, null);
-    public static final ParkingSpace SPACE6 = new ParkingSpace(6L, 1, false, SlotTypeEnum.MONTHLY, null);
-    public static final ParkingSpace SPACE7 = new ParkingSpace(7L, 2, false, SlotTypeEnum.MONTHLY, null);
+    public static final ParkingSpace SPACE6 = new ParkingSpace(6L, 1, true, SlotTypeEnum.MONTHLY, null);
+    public static final ParkingSpace SPACE7 = new ParkingSpace(7L, 2, true, SlotTypeEnum.MONTHLY, null);
     public static final ParkingSpace SPACE8 = new ParkingSpace(8L, 3, false, SlotTypeEnum.MONTHLY, null);
     public static final ParkingSpace SPACE9 = new ParkingSpace(9L, 4, false, SlotTypeEnum.MONTHLY, null);
     public static final ParkingSpace SPACE10 = new ParkingSpace(10L, 5, false, SlotTypeEnum.MONTHLY, null);

@@ -20,12 +20,16 @@ public class TicketMapper {
         return new ModelMapper().map(dto, Ticket.class);
     }
 
-    public static TicketResponseDto toDto(Ticket ticket) {
+    public static TicketResponseDto toResponseDto(Ticket ticket) {
         return new ModelMapper().map(ticket, TicketResponseDto.class);
     }
 
+    public static TicketCreateDto toCreateDto(Ticket ticket) {
+        return new ModelMapper().map(ticket, TicketCreateDto.class);
+    }
+
     public static List<TicketResponseDto> toListDto (List<Ticket> tickets) {
-        return tickets.stream().map(ticket -> toDto(ticket)).collect(Collectors.toList());
+        return tickets.stream().map(ticket -> toResponseDto(ticket)).collect(Collectors.toList());
     }
 
     public static List<Ticket> toListTicket (List<TicketResponseDto> dtos) {
