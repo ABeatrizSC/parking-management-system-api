@@ -2,6 +2,7 @@ package com.example.parking_management_system_api.services;
 
 import com.example.parking_management_system_api.entities.ParkingSpace;
 import com.example.parking_management_system_api.entities.Vehicle;
+import com.example.parking_management_system_api.models.SlotTypeEnum;
 import com.example.parking_management_system_api.models.VehicleCategoryEnum;
 import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
 import com.example.parking_management_system_api.repositories.VehicleRepository;
@@ -32,6 +33,10 @@ public class ParkingSpaceService {
         return parkingSpacesRepository.findById(id);
     }
 
+    public ParkingSpace findParkingSpaceByNumber(Integer number) {
+        return parkingSpacesRepository.findByNumber(number);
+    }
+
     public List<ParkingSpace> getAllParkingSpaces() {
         return parkingSpacesRepository.findAll();
     }
@@ -54,10 +59,9 @@ public class ParkingSpaceService {
         return parkingSpacesRepository.findAll().stream()
                 .filter(parkingSpace -> !parkingSpace.isOccupied() )
                 .toList();
-
     }
 
-
-
-
+    public List<ParkingSpace> findAllBySlotType(SlotTypeEnum slotType) {
+        return parkingSpacesRepository.findAllBySlotType(slotType);
+    }
 }
