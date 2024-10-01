@@ -20,7 +20,7 @@ public class Vehicle implements Serializable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "license_plate", nullable = false, length = 100)
+    @Column(name = "license_plate", nullable = false, unique = true,length = 100)
     private String licensePlate;
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = 100)
@@ -30,4 +30,11 @@ public class Vehicle implements Serializable {
     private VehicleTypeEnum accessType;
     @Column(nullable = false)
     private Boolean registered;
+
+    public Vehicle(String licensePlate, VehicleCategoryEnum category, VehicleTypeEnum accessType, Boolean registered) {
+        this.licensePlate = licensePlate;
+        this.category = category;
+        this.accessType = accessType;
+        this.registered = registered;
+    }
 }
