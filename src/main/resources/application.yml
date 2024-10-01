@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: parking-management-system-api
+
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/parking_system_db?createDatabaseIfNotExist=true&serverTimezone=UTC
+    username: root
+    password: root
+
+  flyway:
+    enabled: true
+
+  jpa:
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+
+springdoc:
+  swagger-ui:
+    path: /docs-parking-system.html
+  api-docs:
+    path: /docs-parking-system
+  packagesToScan: com.example.parking_management_system_api.web.controller
