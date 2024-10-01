@@ -4,9 +4,9 @@ import com.example.parking_management_system_api.entities.ParkingSpace;
 import com.example.parking_management_system_api.models.SlotTypeEnum;
 import com.example.parking_management_system_api.repositories.ParkingSpaceRepository;
 import com.example.parking_management_system_api.services.ParkingSpaceService;
-import com.example.parking_management_system_api.web.dto.AvailableSlotsResponse;
+import com.example.parking_management_system_api.web.dto.*;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,14 +21,31 @@ public class ParkingSpaceController {
     private final ParkingSpaceService parkingSpacesService;
     private final ParkingSpaceRepository parkingSpaceRepository;
 
+    @PostMapping("/reduce-slots")
+    public ResponseEntity<String> reduceParkingSpace(@RequestBody ParkingSpaceReductionDto parkingSpaceReductionDto) {
+        try {
+            parkingSpacesService.reduceParkingSpace(parkingSpaceReductionDto);
+            return ResponseEntity.ok("Vagas removidas com sucesso!!");
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(e.getMessage());
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro no servidor"+ e.getMessage());
+        }
+        }
 
 
-
-    @PostMapping
-    public ResponseEntity<ParkingSpace> createParkingSpace(@RequestBody ParkingSpace parkingSpaces) {
-        ParkingSpace createdSpace = parkingSpacesService.createParkingSpace(parkingSpaces);
-        return ResponseEntity.ok(createdSpace);
+    @PostMapping("/create-mutiple-slots")
+    public ResponseEntity<Void> createMultipleParkingSpace(@RequestBody ParkingSpaceBatchDto parkingSpaceBatchDto) {
+            parkingSpacesService.createMultipleParkingSpaces(parkingSpaceBatchDto);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<Void> createParkingSpace(@RequestBody ParkingSpaceCreateDto parkingSpaceCreateDto) {
+        parkingSpacesService.createParkingSpace(parkingSpaceCreateDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build(); // Retorna status 201 Created
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ParkingSpace> getParkingSpaceById(@PathVariable Long id) {
@@ -65,9 +82,14 @@ public class ParkingSpaceController {
     }
 
     @GetMapping("/available-slots/{slotType}")
-    public AvailableSlotsResponse getAvailableSlots(@PathVariable SlotTypeEnum slotType) {
+    public AvailableSlotsResponseDto getAvailableSlots(@PathVariable SlotTypeEnum slotType) {
         int availableCount = parkingSpacesService.getAvailableSlots(slotType).size();
-        return new AvailableSlotsResponse(slotType.name(), availableCount); // Retorna o DTO
+        return new AvailableSlotsResponseDto(slotType.name(), availableCount); // Retorna o DTO
+    }
+
+    @GetMapping("/availability")
+    public ParkingSpaceAvailabilityDto getParkingSpaceAvailability() {
+        return parkingSpacesService.getParkingSpaceAvailability(null); // Você pode passar null se não precisar do objeto ParkingSpace
     }
 
 }
