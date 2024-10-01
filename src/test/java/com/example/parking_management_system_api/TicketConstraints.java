@@ -35,6 +35,7 @@ public class TicketConstraints {
     public static final TicketCreateDto DTO3 = new TicketCreateDto("ABC-1237", VehicleTypeEnum.MOTORCYCLE);
     public static final TicketCreateDto DTO4 = new TicketCreateDto("ABC-1238", VehicleTypeEnum.DELIVERY_TRUCK);
     public static final TicketCreateDto DTO5 = new TicketCreateDto("ABC-1239", VehicleTypeEnum.PUBLIC_SERVICE);
+    public static final TicketCreateDto DTO6 = new TicketCreateDto("", VehicleTypeEnum.PUBLIC_SERVICE);
 
     //TICKETS
     public static final TicketResponseDto TICKET = new TicketResponseDto(2L, VEHICLE12, true, getFormattedNow(), getFormattedNow(), 5, 10, 5.00, "201");

@@ -1,6 +1,9 @@
 package com.example.parking_management_system_api;
 
 import com.example.parking_management_system_api.exception.EntityNotFoundException;
+import com.example.parking_management_system_api.exception.InvalidFieldException;
+import com.example.parking_management_system_api.repositories.VehicleRepository;
+import com.example.parking_management_system_api.services.ParkingSpaceService;
 import com.example.parking_management_system_api.services.TicketService;
 import com.example.parking_management_system_api.web.controller.TicketController;
 import com.example.parking_management_system_api.web.dto.mapper.TicketMapper;
@@ -10,6 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Optional;
 
 import static com.example.parking_management_system_api.TicketConstraints.*;
 import static org.hamcrest.Matchers.hasSize;
@@ -30,6 +37,11 @@ class TicketControllerTest {
     @MockBean
     private TicketService ticketService;
 
+    @MockBean
+    private ParkingSpaceService parkingSpaceService;
+    @MockBean
+    private VehicleRepository vehicleRepository;
+
     @Test
     void checkIn() throws Exception {
         when(ticketService.saveCheckIn(DTO2))
@@ -38,6 +50,16 @@ class TicketControllerTest {
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(DTO2)))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void checkIn_WithInvalidField_ReturnsBadRequest() throws Exception {
+        when(vehicleRepository.findByLicensePlate(DTO6.getLicensePlate()))
+                .thenThrow(new InvalidFieldException());
+        mockMvc.perform(post("/api/tickets")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(DTO6)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
