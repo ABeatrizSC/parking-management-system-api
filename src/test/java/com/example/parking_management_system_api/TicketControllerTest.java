@@ -63,7 +63,7 @@ class TicketControllerTest {
     }
 
     @Test
-    void getTicketById() throws Exception {
+    void getTicket_ByExistingId_ReturnsTicket() throws Exception {
         when(ticketService.findById(1L)).thenReturn(TicketMapper.toResponseDto(TICKET2));
         mockMvc
                 .perform(
@@ -81,7 +81,7 @@ class TicketControllerTest {
     }
 
     @Test
-    void checkOut() throws Exception {
+    void checkOut_ByExistingId_ReturnsTicket() throws Exception {
         when(ticketService.saveCheckOut(TICKET.getId()))
                 .thenReturn(TICKET);
         mockMvc
@@ -99,7 +99,7 @@ class TicketControllerTest {
     }
 
     @Test
-    void getAllTickets() throws Exception {
+    void getAllTickets_ReturnsTickets() throws Exception {
         when(ticketService.searchAll()).thenReturn(TicketMapper.toListDto(TICKETS));
         mockMvc
                 .perform(
