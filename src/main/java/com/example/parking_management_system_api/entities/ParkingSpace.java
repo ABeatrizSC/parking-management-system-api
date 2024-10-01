@@ -20,14 +20,15 @@ public class ParkingSpace implements Serializable {
     @Column(name = "number", nullable = false)
     private int number;
 
-    @Column(name = "isOccupied", nullable = false)
+    @Column(name = "is_occupied", nullable = false)
     private boolean isOccupied;
 
-    @Column(name = "slotType", nullable = false, length = 200)
+    @Column(name = "slot_type", nullable = false, length = 200)
+    @Enumerated(EnumType.STRING)
     private SlotTypeEnum slotType;
 
     @ManyToOne
-    @JoinColumn(name = "vehicle_id")
+    @JoinColumn(name = "vehicles_id")
     private Vehicle vehicle;
 
     @Override

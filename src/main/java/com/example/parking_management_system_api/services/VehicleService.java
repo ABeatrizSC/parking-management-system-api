@@ -12,6 +12,7 @@ import com.example.parking_management_system_api.web.dto.VehicleResponseDto;
 import com.example.parking_management_system_api.web.dto.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +24,8 @@ import static com.example.parking_management_system_api.models.VehicleCategoryEn
 public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
-  
+
+    @Transactional
     public VehicleResponseDto create(VehicleCreateDto dto){
         Vehicle vehicle = VehicleMapper.toVehicle(dto);
 
@@ -39,22 +41,27 @@ public class VehicleService {
         return VehicleMapper.toDto(vehicle);
     }
 
+    @Transactional
     public Vehicle findById(Long id) {
         return vehicleRepository.findById(id).orElseThrow(VehicleNotFoundException::new);
     }
 
+    @Transactional
     public Vehicle findByLicensePlate(String licensePlate) {
         return vehicleRepository.findByLicensePlate(licensePlate).orElseThrow(VehicleNotFoundException::new);
     }
 
+    @Transactional
     public Optional<Vehicle> findByLicensePlateVerify(String licensePlate) {
         return vehicleRepository.findByLicensePlate(licensePlate);
     }
 
+    @Transactional
     public List<Vehicle> findAll(){
         return vehicleRepository.findAll();
     }
 
+    @Transactional
     public Vehicle update(Long id, VehicleCreateDto vehicle){
 
         Vehicle vehicleUpdated = VehicleMapper.toVehicle(vehicle);
@@ -67,12 +74,14 @@ public class VehicleService {
         return vehicleRepository.save(vehicles);
     }
 
+    @Transactional
     public void updateData(Vehicle vehicle, Vehicle vehicleUpdated) {
         vehicle.setLicensePlate(vehicleUpdated.getLicensePlate());
         vehicle.setAccessType(vehicleUpdated.getAccessType());
         vehicle.setCategory(vehicleUpdated.getCategory());
     }
 
+    @Transactional
     public void delete(Long id){
         findById(id);
         vehicleRepository.deleteById(id);

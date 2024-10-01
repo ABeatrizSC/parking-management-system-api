@@ -33,7 +33,7 @@ public class TicketController {
                     @ApiResponse(responseCode = "400", description = "Resource not processed by invalid license plate",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
             })
-    @PostMapping("/checkin")
+    @PostMapping
     public ResponseEntity<TicketResponseDto> checkIn(@Valid @RequestBody TicketCreateDto dto) {
         TicketResponseDto responseDto = ticketService.saveCheckIn(dto);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -59,7 +59,7 @@ public class TicketController {
                     @ApiResponse(responseCode = "404", description = "Resource not found",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
             })
-    @PostMapping("/checkout/{id}")
+    @PostMapping("/{id}/checkout")
     public ResponseEntity<TicketResponseDto> checkOut(@PathVariable Long id) {
         TicketResponseDto responseDto = ticketService.saveCheckOut(id);
         return ResponseEntity.ok(responseDto);

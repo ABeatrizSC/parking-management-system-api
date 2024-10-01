@@ -9,33 +9,38 @@ import com.example.parking_management_system_api.models.VehicleTypeEnum;
 import com.example.parking_management_system_api.web.dto.TicketCreateDto;
 import com.example.parking_management_system_api.web.dto.TicketResponseDto;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class TicketConstraints {
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private static String getFormattedNow() {
+        return LocalDateTime.now().format(formatter);
+    }
 
     //VEHICLES
-    public static final Vehicle VEHICLE1 = new Vehicle(1L, "ABC-1234", VehicleCategoryEnum.SEPARATED, 2, VehicleTypeEnum.PASSENGER_CAR, false);
-    public static final Vehicle VEHICLE12 = new Vehicle(2L, "ABC-1235", VehicleCategoryEnum.SEPARATED, 2, VehicleTypeEnum.MOTORCYCLE, false);
-    public static final Vehicle VEHICLE2 = new Vehicle(3L, "ABC-1236", VehicleCategoryEnum.MONTHLY_PAYER, 2, VehicleTypeEnum.PASSENGER_CAR, Boolean.TRUE);
-    public static final Vehicle VEHICLE22 = new Vehicle(4L, "ABC-1237", VehicleCategoryEnum.MONTHLY_PAYER, 2, VehicleTypeEnum.MOTORCYCLE, Boolean.TRUE);
-    public static final Vehicle VEHICLE3 = new Vehicle(5L, "ABC-1238", VehicleCategoryEnum.DELIVERY_TRUCK, 2, VehicleTypeEnum.DELIVERY_TRUCK, false);
-    public static final Vehicle VEHICLE4 = new Vehicle(6L, "ABC-1239", VehicleCategoryEnum.PUBLIC_SERVICE, 2, VehicleTypeEnum.PUBLIC_SERVICE, false);
+    public static final Vehicle VEHICLE1 = new Vehicle(1L, "ABC-1234", VehicleCategoryEnum.SEPARATED, VehicleTypeEnum.PASSENGER_CAR, false);
+    public static final Vehicle VEHICLE12 = new Vehicle(2L, "ABC-1235", VehicleCategoryEnum.SEPARATED, VehicleTypeEnum.MOTORCYCLE, false);
+    public static final Vehicle VEHICLE2 = new Vehicle(3L, "ABC-1236", VehicleCategoryEnum.MONTHLY_PAYER, VehicleTypeEnum.PASSENGER_CAR, true);
+    public static final Vehicle VEHICLE22 = new Vehicle(4L, "ABC-1237", VehicleCategoryEnum.MONTHLY_PAYER, VehicleTypeEnum.MOTORCYCLE, true);
+    public static final Vehicle VEHICLE3 = new Vehicle(5L, "ABC-1238", VehicleCategoryEnum.DELIVERY_TRUCK, VehicleTypeEnum.DELIVERY_TRUCK, false);
+    public static final Vehicle VEHICLE4 = new Vehicle(6L, "ABC-1239", VehicleCategoryEnum.PUBLIC_SERVICE, VehicleTypeEnum.PUBLIC_SERVICE, false);
 
     //TICKETCREATEDTO
-    public static final TicketCreateDto DTO = new TicketCreateDto("ABC-1234", VehicleCategoryEnum.MONTHLY_PAYER);
-    public static final TicketCreateDto DTO1 = new TicketCreateDto("ABC-1236", VehicleCategoryEnum.MONTHLY_PAYER);
-    public static final TicketCreateDto DTO2 = new TicketCreateDto("ABC-1235", VehicleCategoryEnum.SEPARATED);
-    public static final TicketCreateDto DTO3 = new TicketCreateDto("ABC-1237", VehicleCategoryEnum.SEPARATED);
-    public static final TicketCreateDto DTO4 = new TicketCreateDto("ABC-1238", VehicleCategoryEnum.DELIVERY_TRUCK);
-    public static final TicketCreateDto DTO5 = new TicketCreateDto("ABC-1239", VehicleCategoryEnum.PUBLIC_SERVICE);
+    public static final TicketCreateDto DTO = new TicketCreateDto("ABC-1234", VehicleTypeEnum.PASSENGER_CAR);
+    public static final TicketCreateDto DTO1 = new TicketCreateDto("ABC-1236", VehicleTypeEnum.PASSENGER_CAR);
+    public static final TicketCreateDto DTO2 = new TicketCreateDto("ABC-1235", VehicleTypeEnum.MOTORCYCLE);
+    public static final TicketCreateDto DTO3 = new TicketCreateDto("ABC-1237", VehicleTypeEnum.MOTORCYCLE);
+    public static final TicketCreateDto DTO4 = new TicketCreateDto("ABC-1238", VehicleTypeEnum.DELIVERY_TRUCK);
+    public static final TicketCreateDto DTO5 = new TicketCreateDto("ABC-1239", VehicleTypeEnum.PUBLIC_SERVICE);
 
     //TICKETS
-    public static final TicketResponseDto TICKET = new TicketResponseDto(1L, VEHICLE1, true, LocalTime.now(), LocalTime.now(), 1, 10, 5.00, "201, 202");
-    public static final Ticket TICKET2 = new Ticket(2L, LocalTime.now(), LocalTime.now(), 5.00, true, 5, 10, "201", VEHICLE12);
-    public static final Ticket TICKET3 = new Ticket(3L, LocalTime.now(), LocalTime.now(), 0.00, true, 1, 10, "1, 2", VEHICLE2);
-    public static final Ticket TICKET4 = new Ticket(4L, LocalTime.now(), LocalTime.now(), 0.00, true, 5, 10, "1", VEHICLE22);
-    public static final Ticket TICKET5 = new Ticket(5L, LocalTime.now(), LocalTime.now(), 5.00, true, 1, 10, "201, 202, 203, 204", VEHICLE3);
-    public static final Ticket TICKET6 = new Ticket(6L, LocalTime.now(), LocalTime.now(), 5.00, true, 1, 10, "", VEHICLE4);
+    public static final TicketResponseDto TICKET = new TicketResponseDto(1L, VEHICLE1, true, getFormattedNow(), getFormattedNow(), 1, 10, 5.00, "201, 202");
+    public static final Ticket TICKET2 = new Ticket(2L, getFormattedNow(), getFormattedNow(), 5.00, true, 5, 10, "201", VEHICLE12);
+    public static final Ticket TICKET3 = new Ticket(3L, getFormattedNow(), getFormattedNow(), 0.00, true, 1, 10, "1, 2", VEHICLE2);
+    public static final Ticket TICKET4 = new Ticket(4L, getFormattedNow(), getFormattedNow(), 0.00, true, 5, 10, "1", VEHICLE22);
+    public static final Ticket TICKET5 = new Ticket(5L, getFormattedNow(), getFormattedNow(), 5.00, true, 1, 10, "201, 202, 203, 204", VEHICLE3);
+    public static final Ticket TICKET6 = new Ticket(6L, getFormattedNow(), getFormattedNow(), 5.00, true, 1, 10, "", VEHICLE4);
 
     //SPACES
     public static final ParkingSpace SPACE1 = new ParkingSpace(1L, 201, false, SlotTypeEnum.CASUAL, null);
@@ -43,8 +48,8 @@ public class TicketConstraints {
     public static final ParkingSpace SPACE3 = new ParkingSpace(3L, 203, false, SlotTypeEnum.CASUAL, null);
     public static final ParkingSpace SPACE4 = new ParkingSpace(4L, 204, false, SlotTypeEnum.CASUAL, null);
     public static final ParkingSpace SPACE5 = new ParkingSpace(5L, 205, false, SlotTypeEnum.CASUAL, null);
-    public static final ParkingSpace SPACE6 = new ParkingSpace(6L, 1, false, SlotTypeEnum.MONTHLY, null);
-    public static final ParkingSpace SPACE7 = new ParkingSpace(7L, 2, false, SlotTypeEnum.MONTHLY, null);
+    public static final ParkingSpace SPACE6 = new ParkingSpace(6L, 1, true, SlotTypeEnum.MONTHLY, null);
+    public static final ParkingSpace SPACE7 = new ParkingSpace(7L, 2, true, SlotTypeEnum.MONTHLY, null);
     public static final ParkingSpace SPACE8 = new ParkingSpace(8L, 3, false, SlotTypeEnum.MONTHLY, null);
     public static final ParkingSpace SPACE9 = new ParkingSpace(9L, 4, false, SlotTypeEnum.MONTHLY, null);
     public static final ParkingSpace SPACE10 = new ParkingSpace(10L, 5, false, SlotTypeEnum.MONTHLY, null);

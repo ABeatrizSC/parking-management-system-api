@@ -1,7 +1,11 @@
 package com.example.parking_management_system_api.web.controller;
 
 import com.example.parking_management_system_api.entities.ParkingSpace;
+import com.example.parking_management_system_api.entities.Vehicle;
+import com.example.parking_management_system_api.models.SlotTypeEnum;
 import com.example.parking_management_system_api.services.ParkingSpaceService;
+import com.example.parking_management_system_api.web.dto.VehicleResponseDto;
+import com.example.parking_management_system_api.web.dto.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +21,23 @@ public class ParkingSpaceController {
 
     private final ParkingSpaceService parkingSpacesService;
 
+    @PostMapping
+    public ResponseEntity<ParkingSpace> createParkingSpace(@RequestBody ParkingSpace parkingSpaces) {
+        ParkingSpace createdSpace = parkingSpacesService.createParkingSpace(parkingSpaces);
+        return ResponseEntity.ok(createdSpace);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ParkingSpace> getParkingSpaceById(@PathVariable Long id) {
         Optional<ParkingSpace> parkingSpace = parkingSpacesService.findParkingSpaceById(id);
         return parkingSpace.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{number}")
+    public ResponseEntity<ParkingSpace> getParkingSpaceByNumber(@PathVariable Integer number) {
+        ParkingSpace parkingSpace = parkingSpacesService.findParkingSpaceByNumber(number);
+        return ResponseEntity.ok(parkingSpace);
     }
 
     @GetMapping
@@ -33,7 +48,7 @@ public class ParkingSpaceController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ParkingSpace> updateParkingSpace(@PathVariable Long id, @RequestBody ParkingSpace parkingSpaces) {
-        parkingSpaces.setId(id); // Assumindo que você quer atualizar pelo ID
+        parkingSpaces.setId(id);
         ParkingSpace updatedSpace = parkingSpacesService.updateParkingSpace(parkingSpaces);
         return ResponseEntity.ok(updatedSpace);
     }
@@ -52,15 +67,9 @@ public class ParkingSpaceController {
         return ResponseEntity.ok(availableSpaces);
     }
 
-    //retorna somente vagas ocupadas
-    // Retorna vagas ocupadas
-    @GetMapping("/occupied")
-    public ResponseEntity<List<ParkingSpace>> getOccupiedParkingSpaces() {
-        List<ParkingSpace> occupiedSpaces = parkingSpacesService.getOccupiedParkingSpaces();
-        return ResponseEntity.ok(occupiedSpaces);
+    @GetMapping("/slotType={slotType}")
+    public ResponseEntity<List<ParkingSpace>> getBySlotType(@PathVariable SlotTypeEnum slotType) {
+        List<ParkingSpace> parkingSpaces = parkingSpacesService.findAllBySlotType(slotType);
+        return ResponseEntity.ok(parkingSpaces);
     }
-
-
-
-
 }
