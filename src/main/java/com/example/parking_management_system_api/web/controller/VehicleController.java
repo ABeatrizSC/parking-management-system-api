@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +38,7 @@ public class VehicleController {
                             , examples = @ExampleObject(value = "{ \"error\": \"Invalid fields.\" }")))
     })
     @PostMapping
-    public ResponseEntity<VehicleResponseDto> create(@RequestBody VehicleCreateDto dto){
+    public ResponseEntity<VehicleResponseDto> create(@RequestBody @Valid VehicleCreateDto dto){
         VehicleResponseDto response = vehicleService.create(dto);
         return ResponseEntity.created(URI.create("/api/vehicles"
                 + dto.getLicensePlate())).body(response);
@@ -66,7 +67,7 @@ public class VehicleController {
                                     , examples = @ExampleObject(value = "{ \"error\": \"Vehicle not found.\" }")))
             })
     @GetMapping("/{id}")
-    public ResponseEntity<Vehicle> getById(@PathVariable Long id) {
+    public ResponseEntity<Vehicle> getById(@PathVariable @Valid Long id) {
         Vehicle vehicle = vehicleService.findById(id);
         return ResponseEntity.ok(vehicle);
     }
@@ -81,7 +82,7 @@ public class VehicleController {
                                     , examples = @ExampleObject(value = "{ \"error\": \"Vehicle not found.\" }")))
             })
     @GetMapping("/licensePlate={licensePlate}")
-    public ResponseEntity<VehicleResponseDto> getByLicensePlate(@PathVariable String licensePlate) {
+    public ResponseEntity<VehicleResponseDto> getByLicensePlate(@PathVariable @Valid String licensePlate) {
         Vehicle vehicle = vehicleService.findByLicensePlate(licensePlate);
         return ResponseEntity.ok(VehicleMapper.toDto(vehicle));
     }
@@ -99,7 +100,7 @@ public class VehicleController {
                                     , examples = @ExampleObject(value = "{ \"error\": \"Invalid fields.\" }")))
             })
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody VehicleCreateDto vehicle){
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody @Valid VehicleCreateDto vehicle){
         vehicleService.update(id, vehicle);
         return ResponseEntity.noContent().build();
     }
