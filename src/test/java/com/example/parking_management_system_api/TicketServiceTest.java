@@ -33,14 +33,14 @@ public class TicketServiceTest {
 
     @InjectMocks
     private TicketService ticketService;
-    @InjectMocks
-    private ParkingSpaceService parkingSpaceService;
     @Mock
     private TicketRepository ticketRepository;
     @Mock
     private VehicleRepository vehicleRepository;
     @Mock
     private ParkingSpaceRepository parkingSpaceRepository;
+    @Mock
+    private ParkingSpaceService parkingSpaceService;
 
     @Test
     public void getTicket_ByExistingId_ReturnsTicket() {
@@ -88,31 +88,27 @@ public class TicketServiceTest {
     }
 
     @Test
+    void saveCheckIn_WithValidData_ReturnsTicket() {
+        when(vehicleRepository.findByLicensePlate(any())).thenReturn(Optional.of(VEHICLE4));
+        when(parkingSpaceService.findAllBySlotType(any())).thenReturn(List.of(SPACE1));
+
+        var responseDto = ticketService.saveCheckIn(DTO3);
+        assertThat(responseDto).isNotNull();
+        assertThat(responseDto.getParked()).isTrue();
+    }
+
+    @Test
     public void saveCheckOut_WithUnexistingTicketId_ThrowsException() {
         doThrow(new EntityNotFoundException("")).when(ticketRepository).findById(99L);
         assertThatThrownBy(() -> ticketService.saveCheckOut(99L)).isInstanceOf(EntityNotFoundException.class);
     }
 
-//    @Test
-//    public void saveCheckIn_WithValidData_ReturnsTicket() {
-//        when(ticketRepository.save(TICKET4)).thenReturn(TICKET4);
-//        TicketCreateDto createDto = DTO3;
-//        TicketResponseDto sut = ticketService.saveCheckIn(DTO3);
-//        assertThat(sut).isNotNull();
-//        assertThat(sut.getId()).isEqualTo(4L);
-//        assertThat(sut.getEntranceGate()).isEqualTo(5);
-//        assertThat(sut.getParked()).isTrue();
-//        assertThat(sut.getVehicle()).isEqualTo(VEHICLE22);
-//        assertThat(sut.getParkingSpaces()).isEqualTo("1");
-//    }
-//
-//    @Test
-//    public void saveCheckIn_WithNoFreeSpaces_ThrowsException() {
-//        when(parkingSpaceRepository.findByNumber(any(Integer.class)))
-//                .thenReturn(SPACE6)
-//                .thenReturn(SPACE7);
-//        when(ticketService.allocatedSpaces(VEHICLE2)).thenReturn(Collections.emptyList());
-//        assertThatThrownBy(() -> ticketService.saveCheckIn(DTO1)).isInstanceOf(IllegalStateException.class);
-//    }
+    @Test
+    public void saveCheckIn_WithNoFreeSpaces_ThrowsException() {
+        when(vehicleRepository.findByLicensePlate(any())).thenReturn(Optional.of(VEHICLE2));
+        when(parkingSpaceService.getAllParkingSpaces()).thenReturn(List.of(SPACE1));
+        assertThatThrownBy(() -> ticketService.saveCheckIn(DTO3));
+    }
+
 }
 

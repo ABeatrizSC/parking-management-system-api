@@ -33,10 +33,6 @@ public class ParkingSpaceService {
         return parkingSpacesRepository.findById(id);
     }
 
-    public ParkingSpace findParkingSpaceByNumber(Integer number) {
-        return parkingSpacesRepository.findByNumber(number);
-    }
-
     public List<ParkingSpace> getAllParkingSpaces() {
         return parkingSpacesRepository.findAll();
     }
@@ -59,6 +55,11 @@ public class ParkingSpaceService {
         return parkingSpacesRepository.findAll().stream()
                 .filter(parkingSpace -> !parkingSpace.isOccupied() )
                 .toList();
+
+    }
+
+    public ParkingSpace findByNumber(Integer number) {
+        return parkingSpacesRepository.findByNumber(number);
     }
 
     public List<ParkingSpace> findAllBySlotType(SlotTypeEnum slotType) {

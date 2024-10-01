@@ -1,5 +1,5 @@
 # Parking Management System API
-## Sobre
+## About
 This project consists of creating a REST API for managing check-ins/check-outs and parking spaces in a parking lot.
 
 ### Technologies Used
@@ -62,6 +62,49 @@ Start the Spring Boot application:
 mvn spring-boot:run
  ```
 
+## Database
+Flyway is responsible for automatically creating the database, creating the tables, and populating them with some data. Here is the table script:
+
+```sql
+CREATE TABLE vehicles (
+    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    license_plate VARCHAR(100) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    access_type VARCHAR(50) NOT NULL,
+    registered TINYINT(1) NULL
+);
+
+CREATE TABLE tickets (
+    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    start_hour VARCHAR(50) NULL,
+    finish_hour VARCHAR(50) NULL,
+    total_value DOUBLE NULL,
+    parked TINYINT(1) NULL,
+    entrance_gate BIGINT NULL,
+    exit_gate BIGINT NULL,
+    parking_spaces VARCHAR(100) NULL,
+    vehicles_id BIGINT
+);
+
+CREATE TABLE parking_spaces (
+    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    number BIGINT NOT NULL,
+    is_occupied TINYINT(1) NOT NULL,
+    slot_type VARCHAR(200) NOT NULL,
+    vehicles_id BIGINT
+);
+
+ALTER TABLE parking_spaces
+    ADD CONSTRAINT fk_parking_spaces_vehicles_id
+    FOREIGN KEY (vehicles_id)
+    REFERENCES vehicles(id);
+
+ALTER TABLE tickets
+    ADD CONSTRAINT fk_tickets_vehicles_id
+    FOREIGN KEY (vehicles_id)
+    REFERENCES vehicles(id);
+```
+
 ## API Endpoints
 
 ### Resume
@@ -98,28 +141,28 @@ curl --location 'http://localhost:8080/api/vehicles' \
         "accessType": "MOTORCYCLE"
     }'
 ````
-![img_5.png](img_5.png)
+![./docs/images/img_5.png](./docs/images/img_5.png)
 
 #### Vehicle - Get all vehicles
 * HTTP Method: GET
 ````text
 curl --location 'http://localhost:8080/api/vehicles'
 ````
-![img_1.png](img_1.png)
+![./docs/images/img_1.png](./docs/images/img_1.png)
 
 #### Vehicle - Get a vehicle by id
 * HTTP Method: GET
 ````text
 curl --location 'http://localhost:8080/api/vehicles/6'
 ````
-![img_7.png](img_7.png)
+![./docs/images/img_7.png](./docs/images/img_7.png)
 
 #### Vehicle - Get a vehicle by license plate
 * HTTP Method: GET
 ````text
 curl --location 'http://localhost:8080/api/vehicles/licensePlate=TEST567'
 ````
-![img_8.png](img_8.png)
+![./docs/images/img_8.png](./docs/images/img_8.png)
 
 #### Vehicle - Update an existing vehicle by id
 * HTTP Method: PATCH
@@ -132,21 +175,21 @@ curl --location --request PATCH 'http://localhost:8080/api/vehicles/6' \
         "accessType": "MOTORCYCLE"
     }'
 ````
-![img_9.png](img_9.png)
+![./docs/images/img_9.png](./docs/images/img_9.png)
 
 #### Vehicle - Delete an existing vehicle by id
 * HTTP Method: DELETE
 ````text
 curl --location --request DELETE 'http://localhost:8080/api/vehicles/6'
 ````
-![img_10.png](img_10.png)
+![./docs/images/img_10.png](./docs/images/img_10.png)
 
 ### Ticket - Get All Tickets
 * HTTP Method: GET
 ````text
 curl --location 'http://localhost:8080/api/tickets'
 ````
-![img_12.png](img_12.png)
+![./docs/images/img_12.png](./docs/images/img_12.png)
 
 ### Ticket - Generate a new ticket
 * HTTP Method: POST
@@ -158,28 +201,28 @@ curl --location 'http://localhost:8080/api/tickets' \
   "accessType": "MONTHLY_PAYER"
 }'
 ````
-![img_13.png](img_13.png)
+![./docs/images/img_13.png](./docs/images/img_13.png)
 
 ### Ticket - Get a ticket by id
 * HTTP Method: GET
 ````text
 curl --location 'http://localhost:8080/api/tickets/3'
 ````
-![img_14.png](img_14.png)
+![./docs/images/img_14.png](./docs/images/img_14.png)
 
 ### Ticket - Checkout a ticket
 * HTTP Method: POST
 ````text
 curl --location --request POST 'http://localhost:8080/api/tickets/3/checkout'
 ````
-![img_15.png](img_15.png)
+![./docs/images/img_15.png](./docs/images/img_15.png)
 
 ### Parking Space - Get All parking spaces
 * HTTP Method: GET
 ````text
 curl --location 'http://localhost:8080/api/parkingspaces'
 ````
-![img_16.png](img_16.png)
+![./docs/images/img_16.png](./docs/images/img_16.png)
 
 ### Parking Space - Create a new parking space
 * HTTP Method: POST
@@ -191,7 +234,7 @@ curl --location 'http://localhost:8080/api/parkingspaces' \
   "occupied": false
 }'
 ````
-![img_17.png](img_17.png)
+![./docs/images/img_17.png](./docs/images/img_17.png)
 
 ### Parking Space - Get a parking space by id
 * HTTP Method: GET
@@ -211,7 +254,7 @@ curl --location 'http://localhost:8080/api/parkingspaces/number/1'
 ````text
 curl --location 'http://localhost:8080/api/parkingspaces/slotType=CASUAL'
 ````
-![img_20.png](img_20.png)
+![./docs/images/img_20.png](./docs/images/img_20.png)
 
 
 ### Parking Space - Get all parking spaces available
@@ -219,22 +262,21 @@ curl --location 'http://localhost:8080/api/parkingspaces/slotType=CASUAL'
 ````text
 curl --location 'http://localhost:8080/api/parkingspaces/available'
 ````
-![img_19.png](img_19.png)
+![./docs/images/img_19.png](./docs/images/img_19.png)
 
 ### Parking Space - Update an existing parking space 
 * HTTP Method: PUT
 ````text
 ````
 
-
 ### Parking Space - Delete an existing parking space by id
 * HTTP Method: DELETE
 ````text
 curl --location --request DELETE 'http://localhost:8080/api/vehicles/1'
 ````
-![img_18.png](img_18.png)
+![./docs/images/img_18.png](./docs/images/img_18.png)
 
-## Authors
+## Collaborators
 * [Allan Denner](https://github.com/allandmg)
 * [Ana Carmoni](https://github.com/ABeatrizSC)
 * [Pedro Cavalcante](https://github.com/daysources)
