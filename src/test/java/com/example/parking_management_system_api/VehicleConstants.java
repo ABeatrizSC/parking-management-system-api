@@ -3,6 +3,9 @@ package com.example.parking_management_system_api;
 import com.example.parking_management_system_api.entities.Vehicle;
 import com.example.parking_management_system_api.models.VehicleCategoryEnum;
 import com.example.parking_management_system_api.models.VehicleTypeEnum;
+import com.example.parking_management_system_api.web.dto.VehicleCreateDto;
+import com.example.parking_management_system_api.web.dto.VehicleResponseDto;
+import com.example.parking_management_system_api.web.dto.mapper.VehicleMapper;
 
 public class VehicleConstants {
 
@@ -19,4 +22,6 @@ public class VehicleConstants {
             , false);
     public static final Vehicle VEHICLE5 = new Vehicle( "testplate5", VehicleCategoryEnum.DELIVERY_TRUCK, VehicleTypeEnum.DELIVERY_TRUCK
             , false);
+    public static final VehicleCreateDto VEHICLE6 = new VehicleCreateDto("testPlate7", VehicleCategoryEnum.SEPARATED, VehicleTypeEnum.MOTORCYCLE);
+    public static final VehicleResponseDto VEHICLE6RESPONSE = VehicleMapper.toDto(VehicleMapper.toVehicle(VEHICLE6));
 }
