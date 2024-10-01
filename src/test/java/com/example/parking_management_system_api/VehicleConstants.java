@@ -7,6 +7,9 @@ import com.example.parking_management_system_api.web.dto.VehicleCreateDto;
 import com.example.parking_management_system_api.web.dto.VehicleResponseDto;
 import com.example.parking_management_system_api.web.dto.mapper.VehicleMapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class VehicleConstants {
 
     public static final Vehicle VEHICLE = new Vehicle(1L, "testplate1", VehicleCategoryEnum.SEPARATED, VehicleTypeEnum.PASSENGER_CAR
@@ -24,4 +27,10 @@ public class VehicleConstants {
             , false);
     public static final VehicleCreateDto VEHICLE6 = new VehicleCreateDto("testPlate7", VehicleCategoryEnum.SEPARATED, VehicleTypeEnum.MOTORCYCLE);
     public static final VehicleResponseDto VEHICLE6RESPONSE = VehicleMapper.toDto(VehicleMapper.toVehicle(VEHICLE6));
+    public static final VehicleCreateDto VEHICLE7 = new VehicleCreateDto( null, VehicleCategoryEnum.DELIVERY_TRUCK, VehicleTypeEnum.MOTORCYCLE);
+    public static final List<Vehicle> LIST = new ArrayList<Vehicle>();
+    public static final VehicleCreateDto INVALID_VEHICLE2 = new VehicleCreateDto(null, VehicleCategoryEnum.MONTHLY_PAYER, VehicleTypeEnum.DELIVERY_TRUCK);
+    public static final VehicleCreateDto VEHICLE8 = new VehicleCreateDto("TESTES", VehicleCategoryEnum.SEPARATED, VehicleTypeEnum.PASSENGER_CAR);
+
+
 }
