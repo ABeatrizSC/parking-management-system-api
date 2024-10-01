@@ -3,6 +3,8 @@ package com.example.parking_management_system_api.web.dto;
 import com.example.parking_management_system_api.models.VehicleCategoryEnum;
 import com.example.parking_management_system_api.models.VehicleTypeEnum;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,9 +21,9 @@ public class VehicleCreateDto {
     @NotBlank
     private String licensePlate;
 
-    @NotBlank
+    @NotNull
     private VehicleCategoryEnum category;
 
-    @NotBlank
+    @NotNull
     private VehicleTypeEnum accessType;
 }
