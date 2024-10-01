@@ -5,4 +5,7 @@ public class InvalidFieldException extends RuntimeException{
         super("Invalid fields.");
     }
 
+
+    public InvalidFieldException(String casualQuantity, String s) {
+    }
 }
