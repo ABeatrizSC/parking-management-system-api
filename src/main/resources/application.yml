@@ -5,8 +5,8 @@ spring:
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/parking_system_db?createDatabaseIfNotExist=true&serverTimezone=UTC
-    username: Developer
-    password: rootadm
+    username: root
+    password: root
 
   flyway:
     enabled: true

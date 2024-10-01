@@ -11,6 +11,8 @@ import com.example.parking_management_system_api.web.dto.TicketResponseDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TicketConstraints {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -33,14 +35,22 @@ public class TicketConstraints {
     public static final TicketCreateDto DTO3 = new TicketCreateDto("ABC-1237", VehicleTypeEnum.MOTORCYCLE);
     public static final TicketCreateDto DTO4 = new TicketCreateDto("ABC-1238", VehicleTypeEnum.DELIVERY_TRUCK);
     public static final TicketCreateDto DTO5 = new TicketCreateDto("ABC-1239", VehicleTypeEnum.PUBLIC_SERVICE);
+    public static final TicketCreateDto DTO6 = new TicketCreateDto("", VehicleTypeEnum.PUBLIC_SERVICE);
 
     //TICKETS
-    public static final TicketResponseDto TICKET = new TicketResponseDto(1L, VEHICLE1, true, getFormattedNow(), getFormattedNow(), 1, 10, 5.00, "201, 202");
+    public static final TicketResponseDto TICKET = new TicketResponseDto(2L, VEHICLE12, true, getFormattedNow(), getFormattedNow(), 5, 10, 5.00, "201");
     public static final Ticket TICKET2 = new Ticket(2L, getFormattedNow(), getFormattedNow(), 5.00, true, 5, 10, "201", VEHICLE12);
     public static final Ticket TICKET3 = new Ticket(3L, getFormattedNow(), getFormattedNow(), 0.00, true, 1, 10, "1, 2", VEHICLE2);
     public static final Ticket TICKET4 = new Ticket(4L, getFormattedNow(), getFormattedNow(), 0.00, true, 5, 10, "1", VEHICLE22);
     public static final Ticket TICKET5 = new Ticket(5L, getFormattedNow(), getFormattedNow(), 5.00, true, 1, 10, "201, 202, 203, 204", VEHICLE3);
     public static final Ticket TICKET6 = new Ticket(6L, getFormattedNow(), getFormattedNow(), 5.00, true, 1, 10, "", VEHICLE4);
+
+    public static final List<Ticket> TICKETS = new ArrayList<>() {
+        {
+            add(TICKET2);
+            add(TICKET3);
+        }
+    };
 
     //SPACES
     public static final ParkingSpace SPACE1 = new ParkingSpace(1L, 201, false, SlotTypeEnum.CASUAL, null);
