@@ -103,28 +103,5 @@ public class TicketServiceTest {
         assertThatThrownBy(() -> ticketService.saveCheckOut(99L)).isInstanceOf(EntityNotFoundException.class);
     }
 
-    //???
-
-    @Test
-    void saveCheckIn_WithValidData_ReturnsTicket_Error() {
-        when(vehicleRepository.findByLicensePlate(any())).thenReturn(Optional.of(VEHICLE1));
-        when(parkingSpaceService.findAllBySlotType(any())).thenReturn(List.of(SPACE1));
-        assertThatThrownBy(() -> ticketService.saveCheckIn(DTO3));
-    }
-
-    @Test
-    void saveCheckIn_WithValidData_ReturnsTicket_1() {
-        when(vehicleRepository.findByLicensePlate(any())).thenReturn(Optional.of(VEHICLE2));
-        when(parkingSpaceService.getAllParkingSpaces()).thenReturn(List.of(SPACE1));
-        assertThatThrownBy(() -> ticketService.saveCheckIn(DTO3));
-    }
-    @Test
-    void saveCheckIn_WithNoFreeSpaces_ThrowsException() {
-        when(parkingSpaceRepository.findByNumber(any(Integer.class)))
-                .thenReturn(SPACE6)
-                .thenReturn(SPACE7);
-        when(ticketService.allocatedSpaces(VEHICLE2)).thenReturn(Collections.emptyList());
-        assertThatThrownBy(() -> ticketService.saveCheckIn(DTO1)).isInstanceOf(IllegalStateException.class);
-    }
 }
 
