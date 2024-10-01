@@ -103,5 +103,12 @@ public class TicketServiceTest {
         assertThatThrownBy(() -> ticketService.saveCheckOut(99L)).isInstanceOf(EntityNotFoundException.class);
     }
 
+    @Test
+    public void saveCheckIn_WithNoFreeSpaces_ThrowsException() {
+        when(vehicleRepository.findByLicensePlate(any())).thenReturn(Optional.of(VEHICLE2));
+        when(parkingSpaceService.getAllParkingSpaces()).thenReturn(List.of(SPACE1));
+        assertThatThrownBy(() -> ticketService.saveCheckIn(DTO3));
+    }
+
 }
 
